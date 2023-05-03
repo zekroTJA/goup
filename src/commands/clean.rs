@@ -6,7 +6,7 @@ use crate::{
 use super::Command;
 use clap::Args;
 
-/// Print env variables required to use goup.
+/// Remove all installed SDKs.
 #[derive(Args)]
 pub struct Clean {}
 
