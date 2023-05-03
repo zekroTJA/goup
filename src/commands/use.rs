@@ -2,10 +2,7 @@ use std::io::BufReader;
 
 use super::Command;
 use crate::{
-    env::{
-        download::get_download_url, ensure_dir, get_version_installation_dir,
-        list_installed_versions,
-    },
+    env::{download::get_download_url, *},
     tui::{print_status, print_succes},
     versions::*,
 };
@@ -37,13 +34,17 @@ impl Command for Use {
         if !list_installed_versions()?.contains(&version) {
             ensure_dir(&install_dir)?;
 
+            print_status("Downloading SDK ...");
             let res = reqwest::blocking::get(get_download_url(&version))?;
             let mut arch = Archive::new(GzDecoder::new(BufReader::new(res)));
             print_status("Unpacking SDK ...");
             arch.unpack(&install_dir)?;
         }
 
-        print_succes(&format!("Successfully switched to SDK version {version}"));
+        link_current_version(&version)?;
+        write_current_version(&version)?;
+
+        print_succes(&format!("Switched to SDK version {version}!"));
 
         Ok(())
     }

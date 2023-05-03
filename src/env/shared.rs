@@ -3,7 +3,7 @@ use anyhow::Result;
 use directories::UserDirs;
 use std::{
     fs::{self, File},
-    io::{self, Read},
+    io::{self, Read, Write},
     path::{Path, PathBuf},
 };
 
@@ -76,4 +76,10 @@ pub fn list_installed_versions() -> Result<Vec<Version>> {
 
 pub fn get_version_installation_dir(version: &Version) -> Result<PathBuf> {
     get_installations_dir().map(|v| v.join(version.to_string()))
+}
+
+pub fn write_current_version(version: &Version) -> Result<()> {
+    let vfile_path = get_work_dir()?.join(CURRENT_VERSION_FILE);
+    File::create(vfile_path)?.write_all(version.to_string().as_bytes())?;
+    Ok(())
 }
