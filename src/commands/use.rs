@@ -31,7 +31,7 @@ impl Command for Use {
 
         let install_dir = get_version_installation_dir(&version)?;
 
-        if !list_installed_versions()?.contains(&version) {
+        if !get_installed_versions()?.contains(&version) {
             ensure_dir(&install_dir)?;
 
             print_status("Downloading SDK ...");
@@ -42,7 +42,7 @@ impl Command for Use {
         }
 
         link_current_version(&version)?;
-        write_current_version(&version)?;
+        write_current_version(Some(&version))?;
 
         print_succes(&format!("Switched to SDK version {version}!"));
 

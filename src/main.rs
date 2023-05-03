@@ -16,7 +16,7 @@ struct App {
     command: Commands,
 }
 
-register_commands!(Current, Env, Use, LsRemote, Ls);
+register_commands!(Current, Env, Use, LsRemote, Ls, Drop, Clean);
 
 fn main() {
     let app = App::parse();

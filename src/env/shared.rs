@@ -58,7 +58,7 @@ pub fn get_current_version() -> Result<Option<Version>> {
     Ok(Some(v))
 }
 
-pub fn list_installed_versions() -> Result<Vec<Version>> {
+pub fn get_installed_versions() -> Result<Vec<Version>> {
     let dir = match get_installations_dir()?.read_dir() {
         Ok(v) => v,
         Err(err) if matches!(err.kind(), io::ErrorKind::NotFound) => return Ok(vec![]),
@@ -78,8 +78,23 @@ pub fn get_version_installation_dir(version: &Version) -> Result<PathBuf> {
     get_installations_dir().map(|v| v.join(version.to_string()))
 }
 
-pub fn write_current_version(version: &Version) -> Result<()> {
+pub fn write_current_version(version: Option<&Version>) -> Result<()> {
     let vfile_path = get_work_dir()?.join(CURRENT_VERSION_FILE);
-    File::create(vfile_path)?.write_all(version.to_string().as_bytes())?;
+    match version {
+        Some(v) => File::create(vfile_path)?.write_all(v.to_string().as_bytes())?,
+        None => fs::remove_file(vfile_path)?,
+    }
+    Ok(())
+}
+
+pub fn drop_version(version: &Version) -> Result<()> {
+    let dir = get_version_installation_dir(version)?;
+    fs::remove_dir_all(dir)?;
+    Ok(())
+}
+
+pub fn drop_install_dir() -> Result<()> {
+    let dir = get_installations_dir()?;
+    fs::remove_dir_all(dir)?;
     Ok(())
 }

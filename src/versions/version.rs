@@ -53,6 +53,29 @@ impl Version {
             Some(x) => matches!(x, VersionState::Release),
         }
     }
+
+    pub fn covers(&self, other: &Version) -> bool {
+        if self.major != other.major {
+            return false;
+        }
+
+        match self.minor {
+            Some(x) if x != other.minor.unwrap_or_default() => return false,
+            _ => {}
+        };
+
+        match self.patch {
+            Some(x) if x != other.patch.unwrap_or_default() => return false,
+            _ => {}
+        };
+
+        match &self.pre {
+            Some(x) if x != &other.pre.clone().unwrap_or_default() => return false,
+            _ => {}
+        };
+
+        true
+    }
 }
 
 impl FromStr for Version {

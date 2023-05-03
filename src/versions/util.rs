@@ -53,28 +53,7 @@ pub fn find_version(s: &Version) -> Result<Version> {
         .iter()
         .rev()
         .filter(|v| v.is_stable() || !s.is_stable())
-        .find(|v| {
-            if s.major != v.major {
-                return false;
-            }
-
-            match s.minor {
-                Some(x) if x != v.minor.unwrap_or_default() => return false,
-                _ => {}
-            };
-
-            match s.patch {
-                Some(x) if x != v.patch.unwrap_or_default() => return false,
-                _ => {}
-            };
-
-            match &s.pre {
-                Some(x) if x != &v.pre.clone().unwrap_or_default() => return false,
-                _ => {}
-            };
-
-            true
-        })
+        .find(|v| s.covers(v))
         .cloned()
         .ok_or_else(|| anyhow::anyhow!("no matching stable version found"))
 }

@@ -2,7 +2,6 @@ use super::Command;
 use crate::versions::get_versions;
 use clap::{Args, ValueEnum};
 
-/// List all upstream versions.
 #[derive(ValueEnum, Clone)]
 pub enum FilterOptions {
     Stable,
@@ -10,6 +9,7 @@ pub enum FilterOptions {
     All,
 }
 
+/// List all upstream versions.
 #[derive(Args)]
 pub struct LsRemote {
     /// Filter versions by release type.
