@@ -21,3 +21,13 @@ macro_rules! register_commands {
         }
     };
 }
+
+#[macro_export]
+macro_rules! prelude {
+    ( $( $package:tt ),+ $(,)* ) => {
+        $(
+            mod $package;
+            pub use $package::*;
+        )*
+    };
+}

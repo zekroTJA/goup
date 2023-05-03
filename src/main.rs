@@ -6,7 +6,7 @@ mod util;
 mod versions;
 
 use clap::{Parser, Subcommand};
-use commands::{current::Current, env::Env, r#use::Use, ls_remote::LsRemote};
+use commands::*;
 use std::ops::Deref;
 
 #[derive(Parser)]
@@ -16,7 +16,7 @@ struct App {
     command: Commands,
 }
 
-register_commands!(Current, Env, Use, LsRemote);
+register_commands!(Current, Env, Use, LsRemote, Ls);
 
 fn main() {
     let app = App::parse();

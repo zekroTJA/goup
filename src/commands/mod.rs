@@ -1,7 +1,4 @@
-pub mod current;
-pub mod env;
-pub mod r#use;
-pub mod ls_remote;
+crate::prelude!(current, env, ls, ls_remote, r#use);
 
 use anyhow::Result;
 
