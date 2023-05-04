@@ -330,7 +330,7 @@ dependencies = [
 
 [[package]]
 name = "goup"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -339,8 +339,6 @@ dependencies = [
  "flate2",
  "nom",
  "reqwest",
- "serde",
- "serde_json",
  "tar",
 ]
 
