@@ -7,7 +7,7 @@ macro_rules! error {
     ( $fmt:expr ) => {
         $crate::tui::print_error(&format!($fmt));
     };
-    ( $fmt:expr, $($args:tt),* ) => {
+    ( $fmt:expr, $($arg:tt)* ) => {
         $crate::tui::print_error(&format!($fmt, $($arg)*));
     };
 }
@@ -17,8 +17,18 @@ macro_rules! warning {
     ( $fmt:expr ) => {
         $crate::tui::print_warning(&format!($fmt));
     };
-    ( $fmt:expr, $($args:tt),* ) => {
+    ( $fmt:expr, $($arg:tt)* ) => {
         $crate::tui::print_warning(&format!($fmt, $($arg)*));
+    };
+}
+
+#[macro_export]
+macro_rules! success {
+    ( $fmt:expr ) => {
+        $crate::tui::print_success(&format!($fmt));
+    };
+    ( $fmt:expr, $($arg:tt)* ) => {
+        $crate::tui::print_success(&format!($fmt, $($arg)*));
     };
 }
 
@@ -36,7 +46,7 @@ pub fn print_note(v: &str) {
 }
 
 #[allow(unused_must_use)]
-pub fn print_succes(v: &str) {
+pub fn print_success(v: &str) {
     Term::stdout().clear_line();
     println!("{}", style(v).green());
 }

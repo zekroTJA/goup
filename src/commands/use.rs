@@ -1,13 +1,12 @@
-use std::io::BufReader;
-
 use super::Command;
 use crate::{
     env::{download::get_download_url, *},
-    tui::{print_status, print_succes},
+    tui::{print_status, print_success},
     versions::*,
 };
 use clap::Args;
 use flate2::bufread::GzDecoder;
+use std::io::BufReader;
 use tar::Archive;
 
 /// Install a version of Go.
@@ -24,8 +23,8 @@ impl Command for Use {
         let version = self.version.clone().to_lowercase();
 
         let version: Version = match version.to_lowercase().as_str() {
-            "stable" => get_latest_stable()?,
-            "unstable" => get_latest_unstable()?,
+            "stable" => get_latest_upstream_version(false)?,
+            "unstable" => get_latest_upstream_version(true)?,
             v => find_version(&v.parse()?)?,
         };
 
@@ -41,10 +40,10 @@ impl Command for Use {
             arch.unpack(&install_dir)?;
         }
 
-        link_current_version(&version)?;
+        link_current_version(Some(&version))?;
         write_current_version(Some(&version))?;
 
-        print_succes(&format!("Switched to SDK version {version}!"));
+        print_success(&format!("Switched to SDK version {version}!"));
 
         Ok(())
     }

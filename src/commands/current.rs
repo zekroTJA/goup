@@ -1,10 +1,9 @@
+use super::Command;
 use crate::{
     cmd::{self, exec},
     env::get_current_version,
     error, warning,
 };
-
-use super::Command;
 use clap::Args;
 
 /// Display the currently selected version of Go.

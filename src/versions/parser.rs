@@ -1,9 +1,8 @@
+use super::{Version, VersionState};
 use anyhow::Result;
 use nom::{
     bytes::complete::*, character::complete::char, combinator::map_res, error::ErrorKind, IResult,
 };
-
-use super::{Version, VersionState};
 
 fn number(s: &str) -> IResult<&str, usize> {
     map_res(take_while(|v: char| v.is_ascii_digit()), |v: &str| {
@@ -35,6 +34,8 @@ fn suffix(s: &str) -> IResult<&str, VersionState> {
     }))
 }
 
+/// Takes a Golang release version formatted string and
+/// parses it into a [`Version`].
 pub fn parse_version(s: &str) -> Result<Version> {
     let mut version = Version::default();
 

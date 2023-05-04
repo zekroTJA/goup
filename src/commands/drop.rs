@@ -1,9 +1,5 @@
 use super::Command;
-use crate::{
-    env::{drop_version, get_current_version, get_installed_versions, write_current_version},
-    tui::{accept, print_note, print_status, print_succes},
-    versions::Version,
-};
+use crate::{env::*, tui::*, versions::Version};
 use clap::Args;
 use console::style;
 
@@ -49,13 +45,14 @@ impl Command for Drop {
         }
 
         if is_current {
+            link_current_version(None)?;
             write_current_version(None)?;
         }
 
         print_status("Removing SDK ...");
         drop_version(target)?;
 
-        print_succes("SDK has been removed.");
+        print_success("SDK has been removed.");
 
         Ok(())
     }

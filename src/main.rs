@@ -9,8 +9,12 @@ use clap::{Parser, Subcommand};
 use commands::*;
 use std::ops::Deref;
 
+// TODO: add long help
+const LONG_HELP: &str = r#"
+TODO™"#;
+
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(author, version, about, long_about = LONG_HELP)]
 struct App {
     #[command(subcommand)]
     command: Commands,

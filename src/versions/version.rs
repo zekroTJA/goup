@@ -31,7 +31,19 @@ impl ToString for VersionState {
 }
 
 /// Version representation and parsing for
-/// Golangs version schema.
+/// Go's version schema.
+///
+/// # Explanation
+/// Go uses a version scheme non-compliant to semver
+/// for it's SDK releases of the form
+/// `major(.minor(.patch(rc|beta|alphaPreVersion)))`.
+///
+/// Here are some examples:
+/// - `1`
+/// - `1.2`
+/// - `1.2.3`
+/// - `1.3beta1`
+/// - `1.4rc2`
 ///
 /// # Examples
 /// Basic usage:
@@ -47,6 +59,18 @@ pub struct Version {
 }
 
 impl Version {
+    /// Returns true if the version defines a stable
+    /// release (not suffixed with an `alpha`, `beta` or `rc`
+    /// version part).
+    ///
+    /// # Example
+    /// ```
+    /// let version: Version = "1.2".parse().unwrap();
+    /// assert!(version.is_stable());
+    ///
+    /// let version: Version = "1.3rc1".parse().unwrap();
+    /// assert!(!version.is_stable());
+    /// ```
     pub fn is_stable(&self) -> bool {
         match &self.pre {
             None => true,
@@ -54,6 +78,31 @@ impl Version {
         }
     }
 
+    /// Returns true if the current version covers
+    /// the given `other` version.
+    ///
+    /// # Example
+    /// ```
+    /// let a: Version = "1.2".parse().unwrap();
+    /// let b: Version = "1.2".parse().unwrap();
+    /// assert!(a.covers(&b));
+    ///
+    /// let a: Version = "1".parse().unwrap();
+    /// let b: Version = "1.2.1".parse().unwrap();
+    /// assert!(a.covers(&b));
+    ///
+    /// let a: Version = "1.3".parse().unwrap();
+    /// let b: Version = "1.3.7".parse().unwrap();
+    /// assert!(a.covers(&b));
+    ///
+    /// let a: Version = "1.2.3".parse().unwrap();
+    /// let b: Version = "1.2.3rc1".parse().unwrap();
+    /// assert!(a.covers(&b));
+    ///
+    /// let a: Version = "1.3".parse().unwrap();
+    /// let b: Version = "1.2.1".parse().unwrap();
+    /// assert!(!a.covers(&b));
+    /// ```
     pub fn covers(&self, other: &Version) -> bool {
         if self.major != other.major {
             return false;
@@ -238,5 +287,28 @@ mod test {
         assert!(!Version::from_str("1alpha1").unwrap().is_stable());
         assert!(!Version::from_str("1.2beta2").unwrap().is_stable());
         assert!(!Version::from_str("1.2.3rc3").unwrap().is_stable());
+    }
+
+    #[test]
+    fn covers() {
+        let a: Version = "1.2".parse().unwrap();
+        let b: Version = "1.2".parse().unwrap();
+        assert!(a.covers(&b));
+
+        let a: Version = "1".parse().unwrap();
+        let b: Version = "1.2.1".parse().unwrap();
+        assert!(a.covers(&b));
+
+        let a: Version = "1.3".parse().unwrap();
+        let b: Version = "1.3.7".parse().unwrap();
+        assert!(a.covers(&b));
+
+        let a: Version = "1.2.3".parse().unwrap();
+        let b: Version = "1.2.3rc1".parse().unwrap();
+        assert!(a.covers(&b));
+
+        let a: Version = "1.3".parse().unwrap();
+        let b: Version = "1.2.1".parse().unwrap();
+        assert!(!a.covers(&b));
     }
 }

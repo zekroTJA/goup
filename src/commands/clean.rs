@@ -1,7 +1,4 @@
-use crate::{
-    env::{drop_install_dir, write_current_version},
-    tui::{accept, print_note, print_status, print_succes},
-};
+use crate::{env::*, tui::*};
 
 use super::Command;
 use clap::Args;
@@ -19,10 +16,11 @@ impl Command for Clean {
 
         print_status("Removing SDKs ...");
 
+        link_current_version(None)?;
         write_current_version(None)?;
         drop_install_dir()?;
 
-        print_succes("All SDKs have been removed.");
+        print_success("All SDKs have been removed.");
 
         Ok(())
     }
