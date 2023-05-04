@@ -11,13 +11,14 @@ pub enum FilterOptions {
 
 /// List all upstream versions.
 #[derive(Args)]
-pub struct LsRemote {
+#[command(visible_aliases = ["ls-remote", "list-remote"])]
+pub struct Lsr {
     /// Filter versions by release type.
     #[arg(value_enum, short, long, default_value_t = FilterOptions::All)]
     pub filter: FilterOptions,
 }
 
-impl Command for LsRemote {
+impl Command for Lsr {
     fn run(&self) -> anyhow::Result<()> {
         let tags = get_versions()?;
         let mut tags: Box<dyn Iterator<Item = _>> = Box::new(tags.iter());

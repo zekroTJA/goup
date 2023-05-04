@@ -5,6 +5,7 @@ use console::style;
 
 /// Drop an installed SDK.
 #[derive(Args)]
+#[command(visible_aliases = ["delete", "remove"])]
 pub struct Drop {
     /// The version which should be dropped.
     pub version: String,

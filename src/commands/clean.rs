@@ -5,6 +5,7 @@ use clap::Args;
 
 /// Remove all installed SDKs.
 #[derive(Args)]
+#[command(visible_aliases = ["purge", "prune"])]
 pub struct Clean {}
 
 impl Command for Clean {

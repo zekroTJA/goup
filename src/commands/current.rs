@@ -8,6 +8,7 @@ use clap::Args;
 
 /// Display the currently selected version of Go.
 #[derive(Args)]
+#[command(visible_aliases = ["c"])]
 pub struct Current;
 
 impl Command for Current {

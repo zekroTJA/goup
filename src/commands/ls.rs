@@ -5,6 +5,7 @@ use console::style;
 
 /// Display currently installed SDKs.
 #[derive(Args)]
+#[command(visible_aliases = ["list"])]
 pub struct Ls {}
 
 impl Command for Ls {

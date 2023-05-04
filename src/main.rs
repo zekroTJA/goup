@@ -9,9 +9,11 @@ use clap::{Parser, Subcommand};
 use commands::*;
 use std::ops::Deref;
 
-// TODO: add long help
 const LONG_HELP: &str = r#"
-TODO™"#;
+goup helps to install, update and switch between Go SDK versions in an as easy as possible way.
+
+Simply use `goup env -p && source ~/profile` to add the required environment variables. 
+After that, download the latest version of Go using `goup use`."#;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = LONG_HELP)]
@@ -20,7 +22,7 @@ struct App {
     command: Commands,
 }
 
-register_commands!(Current, Env, Use, LsRemote, Ls, Drop, Clean);
+register_commands!(Current, Env, Use, Lsr, Ls, Drop, Clean);
 
 fn main() {
     let app = App::parse();

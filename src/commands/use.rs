@@ -11,6 +11,7 @@ use tar::Archive;
 
 /// Install a version of Go.
 #[derive(Args)]
+#[command(visible_aliases = ["u", "select", "install"])]
 pub struct Use {
     /// Specify a specific version or select the latest
     /// stable or unstable release.
