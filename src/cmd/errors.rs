@@ -1,15 +1,27 @@
 use core::fmt;
 use std::{io, process::ExitStatus, str::Utf8Error};
 
+/// The error type for command executions.
+///
+/// You can use the `kind` method to match
+/// the errors kind.
 #[derive(Debug)]
 pub struct Error(Box<ErrorKind>);
 
+/// Command execution error kind.
 #[derive(Debug)]
 pub enum ErrorKind {
+    /// The command executoable could not be found.
     NotFound,
+    /// The command failed with a non-zero status code.
     Status((ExitStatus, String)),
-    Message(String),
+    /// The execution failed due to invalid input
+    /// parameters.
+    Parameters(String),
+    /// The formatting of the output data to string
+    /// has failed.
     OutputFormat(Utf8Error),
+    /// The command execution failed unexpectedly.
     Unknown(Box<dyn std::error::Error + Send + Sync>),
 }
 
@@ -24,7 +36,7 @@ impl fmt::Display for Error {
         match self.kind() {
             ErrorKind::NotFound => write!(f, "command not found"),
             ErrorKind::Status((status, stderr)) => write!(f, "status error {status}: {stderr}"),
-            ErrorKind::Message(v) => write!(f, "{v}"),
+            ErrorKind::Parameters(v) => write!(f, "parameter error: {v}"),
             ErrorKind::OutputFormat(err) => write!(f, "output format error: {err}"),
             ErrorKind::Unknown(err) => err.fmt(f),
         }

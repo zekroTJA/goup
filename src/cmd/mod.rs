@@ -3,9 +3,21 @@ pub mod errors;
 use self::errors::{Error, ErrorKind};
 use std::process::Command;
 
+/// Execute a given command and return its
+/// Stdout output as string.
+///
+/// # Errors
+/// If the given command has a non-zero status
+/// code, an [`Error`] of [`ErrorKind::Status`]
+/// is returned.
+///
+/// # Example
+/// ```
+/// let output = exec(&["ls", "-lisah"]).unwrap();
+/// ```
 pub fn exec(cmd: &[&str]) -> Result<String, Error> {
     if cmd.is_empty() {
-        return Err(ErrorKind::Message("command is empty".into()).into());
+        return Err(ErrorKind::Parameters("command is empty".into()).into());
     }
 
     let prog = cmd[0];
