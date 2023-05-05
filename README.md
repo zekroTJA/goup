@@ -10,10 +10,18 @@ With goup, you can easily install, update and switch between versions of the Go 
 
 ## Installation
 
-Simply download the latest binaries from the [Releases Page](https://github.com/zekrotja/goup/releases). Alternatively, you can also install goup using cargo.
+Simply download the latest binaries from the [Releases Page](https://github.com/zekrotja/goup/releases).
+
+Alternatively, you can also install goup using cargo.
 
 ```bash
-cargo install --git https://github.com/zekrotja/goup
+cargo install goup
+```
+
+If you want the latest unreleased version from the `master` branch, use the following command.
+
+```bash
+cargo install --git https://github.com/zekroTJA/goup
 ```
 
 After that, run the following command to setup your environment to use goup to handle your Go versions.
