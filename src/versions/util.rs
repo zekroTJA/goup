@@ -1,37 +1,83 @@
 use super::Version;
-use crate::cmd::{self, exec};
+use crate::{
+    cmd::{self, exec},
+    warning,
+};
 use anyhow::Result;
+use reqwest::{blocking::Client, header};
+use serde::Deserialize;
 use std::str::FromStr;
 
 const GOLANG_REPO: &str = "https://github.com/golang/go.git";
+const GOLANG_TAGS_ENDPOINT: &str =
+    "https://api.github.com/repos/golang/go/git/matching-refs/tags/go";
 
-/// Queries all tags from the remote repository of Go on GitHub
-/// and parses all tags prefixed with `go` into a [`Version`].
+/// Queries all tags from the upstream
+/// [Go repository on GitHub](https://github.com/golang/go),
+/// filters for all tags prefixed with `go`, parses the
+/// [`Version`]s and returns the sorted list of versions
+/// (oldest to latest).
 ///
-/// The resulting list of [`Version`]'s is then returned.
+/// The tags are first tried to be fetched via the GitHub API.
+/// If this fails, a warning message is printed and
+/// `git ls-remote --tags` is used as fallback.
 pub fn get_versions() -> Result<Vec<Version>> {
+    let mut tags = get_versions_api().or_else(|err| {
+        warning!(
+            "Listing remote versions via GitHub API failed, falling back to using git ls-remote.\n\
+            Error was: {err}"
+        );
+        get_versions_git()
+    })?;
+
+    tags.sort();
+
+    Ok(tags)
+}
+
+/// Fetches a list of versions from the Go remote repository on
+/// GitHub using `git ls-remote --tags`.
+fn get_versions_git() -> Result<Vec<Version>> {
     let res = exec(&["git", "ls-remote", "--tags", GOLANG_REPO]);
 
     let res = match res {
         Ok(res) => res,
         Err(err) if matches!(err.kind(), cmd::errors::ErrorKind::NotFound) => {
-            anyhow::bail!("Seems you don't have git installed on your system. Please install git to use the ls-remote sub command.")
+            anyhow::bail!(
+                "Seems you don't have git installed on your system. Listing versions failed."
+            )
         }
         Err(err) => return Err(err.into()),
     };
 
-    let tags: Result<Vec<_>, _> = res
-        .split('\n')
+    res.split('\n')
         .filter_map(|line| line.split_once("refs/tags/"))
         .map(|(_, tag)| tag)
         .filter_map(|tag| tag.strip_prefix("go"))
-        .map(Version::from_str)
-        .collect();
+        .map(FromStr::from_str)
+        .collect()
+}
 
-    let mut tags = tags?;
-    tags.sort();
+#[derive(Deserialize)]
+struct Ref {
+    r#ref: String,
+}
 
-    Ok(tags)
+/// Fetches a list of versions from the Go remote repository on
+/// GitHub using the GitHub REST API.
+fn get_versions_api() -> Result<Vec<Version>> {
+    let refs: Vec<Ref> = Client::builder()
+        .build()?
+        .get(GOLANG_TAGS_ENDPOINT)
+        .header(header::USER_AGENT, "goup")
+        .send()?
+        .error_for_status()?
+        .json()?;
+
+    refs.iter()
+        .filter_map(|r| r.r#ref.strip_prefix("refs/tags/go"))
+        .map(FromStr::from_str)
+        .collect()
 }
 
 /// Fetches upstream versions *(see [`get_versions`])* and returns
