@@ -28,7 +28,7 @@ impl Command for Use {
         let version: Version = match version.to_lowercase().as_str() {
             "stable" => get_latest_upstream_version(false)?,
             "unstable" => get_latest_upstream_version(true)?,
-            v => find_version(&v.parse()?)?,
+            v => find_upstream_version(&v.parse()?)?,
         };
 
         let install_dir = get_version_installation_dir(&version)?;

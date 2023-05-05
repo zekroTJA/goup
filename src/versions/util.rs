@@ -21,13 +21,13 @@ const GOLANG_TAGS_ENDPOINT: &str =
 /// The tags are first tried to be fetched via the GitHub API.
 /// If this fails, a warning message is printed and
 /// `git ls-remote --tags` is used as fallback.
-pub fn get_versions() -> Result<Vec<Version>> {
-    let mut tags = get_versions_api().or_else(|err| {
+pub fn get_upstream_versions() -> Result<Vec<Version>> {
+    let mut tags = get_upstream_versions_api().or_else(|err| {
         warning!(
             "Listing remote versions via GitHub API failed, falling back to using git ls-remote.\n\
             Error was: {err}"
         );
-        get_versions_git()
+        get_upstream_versions_git()
     })?;
 
     tags.sort();
@@ -37,7 +37,7 @@ pub fn get_versions() -> Result<Vec<Version>> {
 
 /// Fetches a list of versions from the Go remote repository on
 /// GitHub using `git ls-remote --tags`.
-fn get_versions_git() -> Result<Vec<Version>> {
+fn get_upstream_versions_git() -> Result<Vec<Version>> {
     let res = exec(&["git", "ls-remote", "--tags", GOLANG_REPO]);
 
     let res = match res {
@@ -65,7 +65,7 @@ struct Ref {
 
 /// Fetches a list of versions from the Go remote repository on
 /// GitHub using the GitHub REST API.
-fn get_versions_api() -> Result<Vec<Version>> {
+fn get_upstream_versions_api() -> Result<Vec<Version>> {
     let refs: Vec<Ref> = Client::builder()
         .build()?
         .get(GOLANG_TAGS_ENDPOINT)
@@ -90,7 +90,7 @@ fn get_versions_api() -> Result<Vec<Version>> {
 /// If no version has been found, an error of type [`anyhow::Error`]
 /// is returned with a message containing more details.
 pub fn get_latest_upstream_version(include_unstable: bool) -> Result<Version> {
-    get_versions()?
+    get_upstream_versions()?
         .iter()
         .rev()
         .find(|v| include_unstable || v.is_stable())
@@ -109,8 +109,8 @@ pub fn get_latest_upstream_version(include_unstable: bool) -> Result<Version> {
 /// # Errors
 /// If no version has been found, an error of type [`anyhow::Error`]
 /// is returned with a message containing more details.
-pub fn find_version(s: &Version) -> Result<Version> {
-    get_versions()?
+pub fn find_upstream_version(s: &Version) -> Result<Version> {
+    get_upstream_versions()?
         .iter()
         .rev()
         .filter(|v| v.is_stable() || !s.is_stable())

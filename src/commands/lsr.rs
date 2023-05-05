@@ -1,5 +1,5 @@
 use super::Command;
-use crate::versions::get_versions;
+use crate::versions::get_upstream_versions;
 use clap::{Args, ValueEnum};
 
 #[derive(ValueEnum, Clone)]
@@ -20,7 +20,7 @@ pub struct Lsr {
 
 impl Command for Lsr {
     fn run(&self) -> anyhow::Result<()> {
-        let tags = get_versions()?;
+        let tags = get_upstream_versions()?;
         let mut tags: Box<dyn Iterator<Item = _>> = Box::new(tags.iter());
 
         match self.filter {

@@ -30,6 +30,23 @@ impl ToString for VersionState {
     }
 }
 
+/// Definitions of version parts.
+///
+/// ```txt
+/// 1.2.34rc5
+/// | | | |___ Pre
+/// | | |_____ Patch
+/// | |_______ Minor
+/// |_________ Major
+/// ```
+#[allow(unused)]
+pub enum VersionPart {
+    Major,
+    Minor,
+    Patch,
+    Pre,
+}
+
 /// Version representation and parsing for
 /// Go's version schema.
 ///
@@ -124,6 +141,42 @@ impl Version {
         };
 
         true
+    }
+
+    /// Returns a copy of the [`Version`] with the part after the
+    /// given [`VersionPart`] removed.
+    ///
+    /// # Example
+    /// ```
+    /// let a: Version = "1.2.3rc1".parse().unwrap();
+    /// let b: Version = "1".parse().unwrap();
+    /// assert_eq!(a.strip_after(VersionPart::Major), b);
+    ///
+    /// let a: Version = "1.2.3rc1".parse().unwrap();
+    /// let b: Version = "1.2".parse().unwrap();
+    /// assert_eq!(a.strip_after(VersionPart::Minor), b);
+    ///
+    /// let a: Version = "1.2.3rc1".parse().unwrap();
+    /// let b: Version = "1.2.3".parse().unwrap();
+    /// assert_eq!(a.strip_after(VersionPart::Patch), b);
+    /// ```
+    pub fn strip_after(&self, part: VersionPart) -> Self {
+        let s = self.clone();
+        match part {
+            VersionPart::Major => Self {
+                minor: None,
+                patch: None,
+                pre: None,
+                ..s
+            },
+            VersionPart::Minor => Self {
+                patch: None,
+                pre: None,
+                ..s
+            },
+            VersionPart::Patch => Self { pre: None, ..s },
+            VersionPart::Pre => s,
+        }
     }
 }
 
@@ -310,5 +363,24 @@ mod test {
         let a: Version = "1.3".parse().unwrap();
         let b: Version = "1.2.1".parse().unwrap();
         assert!(!a.covers(&b));
+    }
+
+    #[test]
+    fn strip_after() {
+        let a: Version = "1.2.3rc1".parse().unwrap();
+        let b: Version = "1".parse().unwrap();
+        assert_eq!(a.strip_after(VersionPart::Major), b);
+
+        let a: Version = "1.2.3rc1".parse().unwrap();
+        let b: Version = "1.2".parse().unwrap();
+        assert_eq!(a.strip_after(VersionPart::Minor), b);
+
+        let a: Version = "1.2.3rc1".parse().unwrap();
+        let b: Version = "1.2.3".parse().unwrap();
+        assert_eq!(a.strip_after(VersionPart::Patch), b);
+
+        let a: Version = "1.2.3rc1".parse().unwrap();
+        let b: Version = "1.2.3rc1".parse().unwrap();
+        assert_eq!(a.strip_after(VersionPart::Pre), b);
     }
 }

@@ -191,7 +191,7 @@ pub fn check_env_applied() -> Result<()> {
         warning!(
             "Seems like necessary environment variables have not been applied. \
             This results in the selected SDK version not being available in the terminal.\n\
-            Please see 'goup help env' to setup required environment variables.\n"
+            Please see `goup help env` to setup required environment variables.\n"
         );
     }
     Ok(())

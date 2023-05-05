@@ -55,7 +55,7 @@ pub fn print_success(v: &str) {
 pub fn print_error(v: &str) {
     Term::stdout().clear_line();
     println!(
-        "{}: {}",
+        "{} {}",
         style("error:").red().bold(),
         style(v).red().bright()
     );
@@ -65,7 +65,7 @@ pub fn print_error(v: &str) {
 pub fn print_warning(v: &str) {
     Term::stdout().clear_line();
     println!(
-        "{}: {}",
+        "{} {}",
         style("warning:").yellow().bold(),
         style(v).yellow().bright()
     );
