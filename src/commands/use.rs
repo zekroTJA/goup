@@ -21,6 +21,8 @@ pub struct Use {
 
 impl Command for Use {
     fn run(&self) -> anyhow::Result<()> {
+        check_env_applied()?;
+
         let version = self.version.clone().to_lowercase();
 
         let version: Version = match version.to_lowercase().as_str() {

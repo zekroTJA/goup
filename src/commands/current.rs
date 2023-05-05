@@ -1,7 +1,7 @@
 use super::Command;
 use crate::{
     cmd::{self, exec},
-    env::get_current_version,
+    env::*,
     error, warning,
 };
 use clap::Args;
@@ -13,6 +13,8 @@ pub struct Current;
 
 impl Command for Current {
     fn run(&self) -> anyhow::Result<()> {
+        check_env_applied()?;
+
         if let Some(v) = get_current_version()? {
             println!("{v}");
             return Ok(());

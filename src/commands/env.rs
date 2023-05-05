@@ -9,8 +9,20 @@ use console::style;
 #[cfg(target_family = "unix")]
 const PROFILE_MARKER: &str = "# goup:envvars";
 
+#[cfg(target_family = "unix")]
+const LONG_ABOUT: &str = "\
+This command prints all necessary environment variables and values required \
+to use goup.
+Using `goup env -p` appends the variables to your `.profile` file in your \
+$HOME directory. After that, you can apply the changes to your current terminal \
+session using `source ~/.profile`.
+If you only want to play around with goup, you can temporarily apply the \
+environment variables to your current terminal session using the command\
+`eval \"$(goup env)\"`.";
+
 /// Print env variables required to use goup.
 #[derive(Args)]
+#[command(long_about = LONG_ABOUT)]
 pub struct Env {
     /// Apply the environment variables to your .profile
     #[cfg(target_family = "unix")]

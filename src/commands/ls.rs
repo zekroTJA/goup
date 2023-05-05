@@ -10,6 +10,8 @@ pub struct Ls {}
 
 impl Command for Ls {
     fn run(&self) -> anyhow::Result<()> {
+        check_env_applied()?;
+
         let mut versions = get_installed_versions()?;
         if versions.is_empty() {
             warning!("There are no versions currently installed.");

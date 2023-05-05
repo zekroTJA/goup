@@ -1,7 +1,8 @@
-use crate::versions::Version;
+use crate::{versions::Version, warning};
 use anyhow::Result;
 use directories::UserDirs;
 use std::{
+    env,
     fs::{self, File},
     io::{self, Read, Write},
     path::{Path, PathBuf},
@@ -175,5 +176,23 @@ pub fn drop_version(version: &Version) -> Result<()> {
 pub fn drop_install_dir() -> Result<()> {
     let dir = get_installations_dir()?;
     fs::remove_dir_all(dir)?;
+    Ok(())
+}
+
+pub fn is_env_applied() -> Result<bool> {
+    let current_install_dir = get_current_install_dir()?;
+    let current_install_dir = current_install_dir.to_string_lossy();
+    let set_install_dir = env::var("GOROOT").unwrap_or_default();
+    Ok(set_install_dir == current_install_dir)
+}
+
+pub fn check_env_applied() -> Result<()> {
+    if !is_env_applied()? {
+        warning!(
+            "Seems like necessary environment variables have not been applied. \
+            This results in the selected SDK version not being available in the terminal.\n\
+            Please see 'goup help env' to setup required environment variables.\n"
+        );
+    }
     Ok(())
 }
