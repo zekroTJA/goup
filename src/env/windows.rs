@@ -7,23 +7,25 @@ use anyhow::Result;
 use std::{
     fs::{self, File},
     io::{Read, Write},
-    os::unix::fs::symlink,
+    os::windows::fs::symlink_dir,
     path::PathBuf,
 };
 
 /// Returns all required environment variables.
 pub fn get_env_vars() -> Result<String> {
+    let path = std::env::var("PATH")?;
+
     let vars = vec![
         (
             "PATH",
-            format!("{}:$PATH", path_to_string(get_current_bin_dir()?)),
+            format!("{};{}", path_to_string(get_current_bin_dir()?), path),
         ),
         ("GOROOT", path_to_string(get_current_install_dir()?)),
     ];
 
     let lines: Vec<_> = vars
         .iter()
-        .map(|(k, v)| format!("export {k}=\"{v}\""))
+        .map(|(k, v)| format!("$env:{k} = \"{v}\""))
         .collect();
 
     Ok(lines.join("\n"))
@@ -42,17 +44,17 @@ pub fn link_current_version(v: Option<&Version>) -> Result<()> {
     match v {
         None => {
             if link.exists() {
-                fs::remove_file(&link)?;
+                fs::remove_dir(&link)?;
             }
         }
         Some(v) => {
             let original = get_version_installation_dir(v)?;
 
             if link.exists() {
-                fs::remove_file(&link)?;
+                fs::remove_dir(&link)?;
             }
 
-            symlink(original, link)?;
+            symlink_dir(original, link)?;
         }
     }
 
@@ -63,14 +65,11 @@ pub fn link_current_version(v: Option<&Version>) -> Result<()> {
 /// if it exists. Otherwise, the path to the .profile
 /// file is returned.
 pub fn get_profile_dir() -> Result<PathBuf> {
-    let home = get_home_dir()?;
-
-    let zshenv = home.join(".zshenv");
-    if zshenv.exists() {
-        Ok(zshenv)
-    } else {
-        Ok(home.join(".profile"))
-    }
+    get_home_dir().map(|p| {
+        p.join("Documents")
+            .join("WindowsPowerShell")
+            .join("Microsoft.PowerShell_profile.ps1")
+    })
 }
 
 fn path_to_string(p: PathBuf) -> String {

@@ -8,6 +8,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use super::get_profile_dir;
+
 const CURRENT_VERSION_FILE: &str = ".current_version";
 
 /// Returns the current users home directory.
@@ -176,6 +178,47 @@ pub fn drop_version(version: &Version) -> Result<()> {
 pub fn drop_install_dir() -> Result<()> {
     let dir = get_installations_dir()?;
     fs::remove_dir_all(dir)?;
+    Ok(())
+}
+
+/// Reads and returns the content of the profile file in
+/// the current users `$HOME` directory.
+///
+/// See [`get_profile_dir`] for more information.
+pub fn read_profile() -> Result<String> {
+    let profile_dir = get_profile_dir()?;
+
+    if !profile_dir.exists() {
+        return Ok(String::new());
+    }
+
+    let mut f = File::open(profile_dir)?;
+    let mut res = String::new();
+    f.read_to_string(&mut res)?;
+
+    Ok(res)
+}
+
+/// Appends the given `content` to the profile file in
+/// the current users `$HOME` directory.
+///
+/// See [`get_profile_dir`] for more information.
+pub fn append_to_profile(content: &str) -> Result<()> {
+    let profile_dir = get_profile_dir()?;
+
+    let mut f = if profile_dir.exists() {
+        File::options().append(true).open(profile_dir)?
+    } else {
+        if let Some(parent) = profile_dir.parent() {
+            if !parent.exists() {
+                fs::create_dir_all(parent)?;
+            }
+        }
+        File::create(profile_dir)?
+    };
+
+    f.write_all(content.as_bytes())?;
+
     Ok(())
 }
 

@@ -6,8 +6,9 @@ use crate::{
 };
 use clap::Args;
 use flate2::bufread::GzDecoder;
-use std::io::BufReader;
+use std::{io::BufReader, path::Path};
 use tar::Archive;
+use zip::read::ZipArchive;
 
 /// Install a version of Go.
 #[derive(Args)]
@@ -36,11 +37,26 @@ impl Command for Use {
         if !get_installed_versions()?.contains(&version) {
             ensure_dir(&install_dir)?;
 
+            let dl_url = get_download_url(&version);
+
             print_status("Downloading SDK ...");
-            let res = reqwest::blocking::get(get_download_url(&version))?;
-            let mut arch = Archive::new(GzDecoder::new(BufReader::new(res)));
-            print_status("Unpacking SDK ...");
-            arch.unpack(&install_dir)?;
+            let mut res = reqwest::blocking::get(get_download_url(&version))?;
+
+            match get_url_extension(&dl_url) {
+                "gz" | "tgz" => {
+                    print_status("Unpacking SDK ...");
+                    let mut arch = Archive::new(GzDecoder::new(BufReader::new(res)));
+                    arch.unpack(&install_dir)?;
+                }
+                "zip" => {
+                    let mut tmp = tempfile::tempfile()?;
+                    res.copy_to(&mut tmp)?;
+                    print_status("Unpacking SDK ...");
+                    let mut arch = ZipArchive::new(tmp)?;
+                    arch.extract(&install_dir)?;
+                }
+                _ => {}
+            }
         }
 
         link_current_version(Some(&version))?;
@@ -50,4 +66,8 @@ impl Command for Use {
 
         Ok(())
     }
+}
+
+fn get_url_extension(url: &str) -> &str {
+    url.split('.').last().unwrap_or_default()
 }
