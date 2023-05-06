@@ -6,7 +6,7 @@ use crate::{
 };
 use clap::Args;
 use flate2::bufread::GzDecoder;
-use std::{io::BufReader, path::Path};
+use std::io::BufReader;
 use tar::Archive;
 use zip::read::ZipArchive;
 

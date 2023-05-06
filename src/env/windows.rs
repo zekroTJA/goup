@@ -4,12 +4,7 @@ use crate::{
     versions::Version,
 };
 use anyhow::Result;
-use std::{
-    fs::{self, File},
-    io::{Read, Write},
-    os::windows::fs::symlink_dir,
-    path::PathBuf,
-};
+use std::{fs, os::windows::fs::symlink_dir, path::PathBuf};
 
 /// Returns all required environment variables.
 pub fn get_env_vars() -> Result<String> {
