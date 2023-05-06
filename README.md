@@ -6,7 +6,11 @@ Simple version manager like `rustup` or `nvm` but for Go.
 
 ## Features
 
-With goup, you can easily install, update and switch between versions of the Go SDK within a single, self-contained binary. Currently, goup is only supported on Linux and macOS, but [support for Windows is planned](https://github.com/zekroTJA/goup/issues/2).
+- Install, manage and switch between different versions of the Go SDK.
+- Multi-platform compatible (Linux, macOS & Windows).
+- Tries to be as simple and "out-of-the-way" as possible.
+- Should be pretty fast.
+- Uses the precompiled binaries instead of compiling the sources locally.
 
 ## Installation
 
