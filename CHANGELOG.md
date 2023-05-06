@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0
+
+- Windows with PowerShell is now supported! 🥳
+
+- The parameter `goup env -p` (or long `--profile`) has now been renamed to `-a` (long `--apply`). The old parameter is added as an invisible alias and can still be used.
+
 ## v1.1.0
 
 - A new command [`check`](https://github.com/zekroTJA/goup/blob/main/docs/commands.md#check) has been added which can be used to check for new upstream versions compared to the currently used one.
