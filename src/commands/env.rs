@@ -13,11 +13,10 @@ const PROFILE_MARKER: &str = "# goup:envvars";
 const LONG_ABOUT: &str = "\
 This command prints all necessary environment variables and values required \
 to use goup.
-Using `goup env -p` appends the variables to your `.profile` file in your \
-$HOME directory. After that, you can apply the changes to your current terminal \
-session using `source ~/.profile`.
-If you only want to play around with goup, you can temporarily apply the \
-environment variables to your current terminal session using the command\
+
+Using `goup env -p` appends the variables to your `.profile` (or `.zshenv`, \
+depending on your current shell) file in your $HOME directory. After that, \
+you can apply the changes to your current terminal session using \
 `eval \"$(goup env)\"`.";
 
 /// Print env variables required to use goup.
@@ -32,14 +31,12 @@ pub struct Env {
 
 impl Command for Env {
     fn run(&self) -> anyhow::Result<()> {
-        let vars = get_env_vars()?;
-
         #[cfg(target_family = "unix")]
         if self.profile {
             let profile_content = env::read_profile()?;
             if profile_content.contains(PROFILE_MARKER) {
                 warning!(
-                    "You already have applied goup's env variables to your .profile.\n\
+                    "You already have applied goup's env variables to your profile.\n\
                     If you want to update them, please remove the entries below the \"{}\" header \
                     as well as the header itself manually.",
                     PROFILE_MARKER
@@ -47,14 +44,19 @@ impl Command for Env {
                 return Ok(());
             }
 
-            env::append_to_profile(&format!("\n{}\n{}\n\n", PROFILE_MARKER, vars))?;
+            env::append_to_profile(&format!(
+                "\n{}\n{}\n\n",
+                PROFILE_MARKER, r#"eval "$(goup env)""#
+            ))?;
             success!(
-                "Env vars have been appended to your .profile file. You can now do\n{}",
-                style("$ source ~/.profile").green().bright().italic()
+                "Env vars have been appended to your profile. To apply them to the current \
+                terminal session, use the following command:\n{}",
+                style("$ eval \"$(goup env)\"").green().bright().italic()
             );
             return Ok(());
         }
 
+        let vars = get_env_vars()?;
         println!("{}", vars);
 
         Ok(())
