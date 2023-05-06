@@ -5,8 +5,7 @@ use crate::{
 };
 use anyhow::Result;
 use std::{
-    fs::{self, File},
-    io::{Read, Write},
+    fs,
     os::unix::fs::symlink,
     path::PathBuf,
 };
