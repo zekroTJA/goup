@@ -15,7 +15,7 @@ pub enum FilterOptions {
 pub struct Lsr {
     /// Filter versions by release type.
     #[arg(value_enum, short, long, default_value_t = FilterOptions::All)]
-    pub filter: FilterOptions,
+    filter: FilterOptions,
 }
 
 impl Command for Lsr {

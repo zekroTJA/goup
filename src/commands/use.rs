@@ -17,7 +17,7 @@ pub struct Use {
     /// Specify a specific version or select the latest
     /// stable or unstable release.
     #[arg(default_value = "stable")]
-    pub version: String,
+    version: String,
 }
 
 impl Command for Use {

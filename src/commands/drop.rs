@@ -8,7 +8,7 @@ use console::style;
 #[command(visible_aliases = ["delete", "remove"])]
 pub struct Drop {
     /// The version which should be dropped.
-    pub version: String,
+    version: String,
 }
 
 impl Command for Drop {
