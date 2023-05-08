@@ -44,5 +44,8 @@ jobs:
       - name: Install goup
         run: cargo install --path .
 
+      - name: Setup env
+        run: goup env --apply
+
       - name: Run e2e Tests
         run: python3 e2e/main.py
