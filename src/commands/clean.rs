@@ -6,11 +6,15 @@ use clap::Args;
 /// Remove all installed SDKs.
 #[derive(Args)]
 #[command(visible_aliases = ["purge", "prune"])]
-pub struct Clean {}
+pub struct Clean {
+    /// Run cleanup without prompt
+    #[arg(short, long)]
+    yes: bool,
+}
 
 impl Command for Clean {
     fn run(&self) -> anyhow::Result<()> {
-        if !accept("Do you really want to delete all installed SDKs?", false)? {
+        if !self.yes && !accept("Do you really want to delete all installed SDKs?", false)? {
             print_note("Aborted.");
             return Ok(());
         }
