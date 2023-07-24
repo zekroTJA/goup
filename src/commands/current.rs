@@ -23,7 +23,7 @@ impl Command for Current {
         warning!("No version installed via goup");
         match exec(&["go", "version"]) {
             Ok(v) => println!("from system: {v}"),
-            Err(err) if matches!(err.kind(), cmd::errors::ErrorKind::NotFound) => {
+            Err(err) if matches!(err, cmd::errors::Error::NotFound) => {
                 error!("no local go version found");
             }
             Err(err) => return Err(err.into()),

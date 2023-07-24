@@ -42,7 +42,7 @@ fn get_upstream_versions_git() -> Result<Vec<Version>> {
 
     let res = match res {
         Ok(res) => res,
-        Err(err) if matches!(err.kind(), cmd::errors::ErrorKind::NotFound) => {
+        Err(err) if matches!(err, cmd::errors::Error::NotFound) => {
             anyhow::bail!(
                 "Seems you don't have git installed on your system. Listing versions failed."
             )
