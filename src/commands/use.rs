@@ -1,6 +1,7 @@
 use super::Command;
 use crate::{
     env::{download::get_download_url, *},
+    shell,
     tui::{print_status, print_success},
     versions::*,
 };
@@ -22,7 +23,7 @@ pub struct Use {
 
 impl Command for Use {
     fn run(&self) -> anyhow::Result<()> {
-        check_env_applied()?;
+        check_env_applied(&shell::get_shell())?;
 
         let version = self.version.clone().to_lowercase();
 

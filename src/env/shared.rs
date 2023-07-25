@@ -241,15 +241,8 @@ pub fn append_to_profile(shell: &Shell, content: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn is_env_applied() -> Result<bool> {
-    let current_install_dir = get_current_install_dir()?;
-    let current_install_dir = current_install_dir.to_string_lossy();
-    let set_install_dir = env::var("GOROOT").unwrap_or_default();
-    Ok(set_install_dir == current_install_dir)
-}
-
-pub fn check_env_applied() -> Result<()> {
-    if !is_env_applied()? {
+pub fn check_env_applied(shell: &Shell) -> Result<()> {
+    if !shell.is_env_applied()? {
         warning!(
             "Seems like necessary environment variables have not been applied. \
             This results in the selected SDK version not being available in the terminal.\n\
@@ -261,15 +254,15 @@ pub fn check_env_applied() -> Result<()> {
 
 #[cfg(windows)]
 pub fn to_gitbash_path(pth: &str) -> String {
+    let pth = pth.replace('\\', "/");
+
     let mut chars = pth.chars();
 
-    let res = if chars.nth(1) == Some(':') && chars.next() == Some('\\') {
+    if chars.nth(1) == Some(':') && chars.next() == Some('/') {
         format!("/{}{}", &pth[..1].to_lowercase(), &pth[2..])
     } else {
-        pth.into()
-    };
-
-    res.replace('\\', "/")
+        pth
+    }
 }
 
 #[cfg(windows)]
@@ -289,6 +282,7 @@ mod test {
         use super::*;
 
         assert_eq!("/c/users/foo/bar", to_gitbash_path(r"C:\users\foo\bar"));
+        assert_eq!("/c/users/foo/bar", to_gitbash_path(r"C:/users/foo/bar"));
         assert_eq!("users/foo/bar", to_gitbash_path(r"users\foo\bar"));
     }
 }

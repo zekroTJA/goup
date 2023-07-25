@@ -20,8 +20,9 @@ pub trait ShellEnv {
     fn get_setenv_command(&self, key: &str, val: &str) -> Result<String, Error>;
     fn append_to_path(&self, curr: &str, new: &str) -> Result<String, Error>;
     fn get_profile_dir(&self) -> Result<PathBuf, Error>;
-    fn path_to_string(&self, path: &Path) -> Result<String, Error>;
+    fn path_to_string<T: AsRef<Path>>(&self, path: T) -> Result<String, Error>;
     fn get_apply_env_command(&self) -> Result<&'static str, Error>;
+    fn is_env_applied(&self) -> Result<bool, Error>;
 }
 
 impl ShellEnv for Shell {
@@ -61,16 +62,16 @@ impl ShellEnv for Shell {
         }
     }
 
-    fn path_to_string(&self, path: &Path) -> Result<String, Error> {
+    fn path_to_string<T: AsRef<Path>>(&self, path: T) -> Result<String, Error> {
         match self {
             Self::Bash | Self::Sh | Self::Zsh => {
                 #[cfg(not(windows))]
                 return Ok(path.to_string_lossy().to_string());
 
                 #[cfg(windows)]
-                return Ok(env::to_gitbash_path(&path.to_string_lossy()));
+                return Ok(env::to_gitbash_path(&path.as_ref().to_string_lossy()));
             }
-            Self::Cmd | Self::PowerShell => Ok(path.to_string_lossy().to_string()),
+            Self::Cmd | Self::PowerShell => Ok(path.as_ref().to_string_lossy().to_string()),
             _ => Err(Error::UnsupportedShell),
         }
     }
@@ -81,5 +82,12 @@ impl ShellEnv for Shell {
             Self::Cmd | Self::PowerShell => Ok("goup env | Out-String | Invoke-Expression"),
             _ => Err(Error::UnsupportedShell),
         }
+    }
+
+    fn is_env_applied(&self) -> Result<bool, Error> {
+        let current_install_dir = env::get_current_install_dir()?;
+        let current_install_dir = self.path_to_string(current_install_dir)?;
+        let set_install_dir = self.path_to_string(std::env::var("GOROOT").unwrap_or_default())?;
+        Ok(set_install_dir == current_install_dir)
     }
 }
