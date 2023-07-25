@@ -1,13 +1,16 @@
 mod cmd;
 mod commands;
 mod env;
+mod shell;
 mod tui;
 mod util;
 mod versions;
 
 use clap::{Parser, Subcommand};
 use commands::*;
+use shell::set_shell;
 use std::ops::Deref;
+use whattheshell::Shell;
 
 #[cfg(target_family = "unix")]
 const LONG_ABOUT: &str = "\
@@ -35,6 +38,17 @@ register_commands!(Check, Clean, Current, Drop, Env, Ls, Lsr, Use);
 
 fn main() {
     let app = App::parse();
+
+    let shell = match Shell::infer() {
+        Err(err) => {
+            error!("failed inferring shell: {err}");
+            return;
+        }
+        Ok(shell) => shell,
+    };
+
+    dbg!(&shell);
+    set_shell(shell);
 
     if let Err(err) = app.command.run() {
         error!("{err}");

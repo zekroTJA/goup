@@ -4,29 +4,7 @@ use crate::{
     versions::Version,
 };
 use anyhow::Result;
-use std::{
-    fs,
-    os::unix::fs::symlink,
-    path::PathBuf,
-};
-
-/// Returns all required environment variables.
-pub fn get_env_vars() -> Result<String> {
-    let vars = vec![
-        (
-            "PATH",
-            format!("{}:$PATH", path_to_string(get_current_bin_dir()?)),
-        ),
-        ("GOROOT", path_to_string(get_current_install_dir()?)),
-    ];
-
-    let lines: Vec<_> = vars
-        .iter()
-        .map(|(k, v)| format!("export {k}=\"{v}\""))
-        .collect();
-
-    Ok(lines.join("\n"))
-}
+use std::{fs, os::unix::fs::symlink, path::PathBuf};
 
 /// Creates a symlink to the SDK installation dir of
 /// the given [`Version`].

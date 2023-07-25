@@ -1,11 +1,13 @@
 use super::Command;
 use crate::{
     env::{self, get_env_vars},
+    shell::get_shell,
     success, warning,
 };
 use anyhow::Result;
 use clap::Args;
 use console::style;
+use whattheshell::Shell;
 
 const PROFILE_MARKER: &str = "# goup:envvars";
 
@@ -46,11 +48,12 @@ pub struct Env {
 
 impl Command for Env {
     fn run(&self) -> anyhow::Result<()> {
+        let shell = get_shell();
         if self.apply {
-            return apply_profile();
+            return apply_profile(&shell);
         }
 
-        let vars = get_env_vars()?;
+        let vars = get_env_vars(&shell)?;
         println!("{}", vars);
 
         Ok(())
@@ -85,8 +88,8 @@ fn apply_profile() -> Result<()> {
 }
 
 #[cfg(target_family = "windows")]
-fn apply_profile() -> Result<()> {
-    let profile_content = env::read_profile()?;
+fn apply_profile(shell: &Shell) -> Result<()> {
+    let profile_content = env::read_profile(shell)?;
     if profile_content.contains(PROFILE_MARKER) {
         warning!(
             "You already have applied goup's env variables to your profile.\n\
@@ -97,10 +100,13 @@ fn apply_profile() -> Result<()> {
         return Ok(());
     }
 
-    env::append_to_profile(&format!(
-        "\n{}\n{}\n\n",
-        PROFILE_MARKER, r#"goup env | Out-String | Invoke-Expression"#
-    ))?;
+    env::append_to_profile(
+        shell,
+        &format!(
+            "\n{}\n{}\n\n",
+            PROFILE_MARKER, r#"goup env | Out-String | Invoke-Expression"#
+        ),
+    )?;
 
     success!(
         "Env vars have been appended to your profile. To apply them to the current \

@@ -3,7 +3,7 @@ use std::{process::ExitStatus, str::Utf8Error};
 /// The error type for command executions.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    /// The command executoable could not be found.
+    /// The command executable could not be found.
     #[error("command not found")]
     NotFound,
     /// The command failed with a non-zero status code.
