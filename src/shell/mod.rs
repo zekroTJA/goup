@@ -12,15 +12,8 @@ static SHELL: OnceLock<Shell> = OnceLock::new();
 
 pub fn get_shell() -> Shell {
     SHELL
-        .get()
-        .expect("failed getting shell instance; this is very likely a bug")
+        .get_or_init(|| Shell::infer().expect("failed inferring current shell"))
         .clone()
-}
-
-pub fn set_shell(shell: Shell) {
-    SHELL
-        .set(shell)
-        .expect("failed setting shell instance; this is very likely a bug")
 }
 
 pub trait ShellEnv {
@@ -28,6 +21,7 @@ pub trait ShellEnv {
     fn append_to_path(&self, curr: &str, new: &str) -> Result<String, Error>;
     fn get_profile_dir(&self) -> Result<PathBuf, Error>;
     fn path_to_string(&self, path: &Path) -> Result<String, Error>;
+    fn get_apply_env_command(&self) -> Result<&'static str, Error>;
 }
 
 impl ShellEnv for Shell {
@@ -77,6 +71,14 @@ impl ShellEnv for Shell {
                 return Ok(env::to_gitbash_path(&path.to_string_lossy()));
             }
             Self::Cmd | Self::PowerShell => Ok(path.to_string_lossy().to_string()),
+            _ => Err(Error::UnsupportedShell),
+        }
+    }
+
+    fn get_apply_env_command(&self) -> Result<&'static str, Error> {
+        match self {
+            Self::Bash | Self::Sh | Self::Zsh => Ok(r#"eval "$(goup env)""#),
+            Self::Cmd | Self::PowerShell => Ok("goup env | Out-String | Invoke-Expression"),
             _ => Err(Error::UnsupportedShell),
         }
     }

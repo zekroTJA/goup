@@ -1,7 +1,7 @@
 use super::Command;
 use crate::{
     env::{self, get_env_vars},
-    shell::get_shell,
+    shell::{self, ShellEnv},
     success, warning,
 };
 use anyhow::Result;
@@ -11,29 +11,29 @@ use whattheshell::Shell;
 
 const PROFILE_MARKER: &str = "# goup:envvars";
 
-#[cfg(unix)]
-const LONG_ABOUT: &str = "\
-This command prints all necessary environment variables and values required \
-to use goup.
+fn get_long_about() -> String {
+    let shell = shell::get_shell();
 
-Using `goup env -p` appends the variables to your `.profile` (or `.zshenv`, \
-depending on your current shell) file in your $HOME directory. After that, \
-you can apply the changes to your current terminal session using \
-`eval \"$(goup env)\"`.";
-
-#[cfg(windows)]
-const LONG_ABOUT: &str = "\
-This command prints all necessary environment variables and values required \
-to use goup.
-
-Using `goup env -a` appends the variables to your PowerShell profile script \
-in your %HOME%\\Documents\\WindowsPowerShell directory. After that, \
-you can apply the changes to your current terminal session using \
-`goup env | Out-String | Invoke-Expression`.";
+    format!(
+        "This command prints all necessary environment variables and values required \
+        to use goup. \
+        \n\n\
+        Using `goup env -p` appends the variables to your profile file ({}). \
+        After that, you can apply the changes to your current terminal session using \
+        `{}`.",
+        shell
+            .get_profile_dir()
+            .and_then(|p| shell.path_to_string(&p))
+            .expect("failed getting profile directory"),
+        shell
+            .get_apply_env_command()
+            .expect("failed getting env apply command")
+    )
+}
 
 /// Print env variables required to use goup.
 #[derive(Args)]
-#[command(long_about = LONG_ABOUT)]
+#[command(long_about = get_long_about())]
 pub struct Env {
     /// Apply the environment variables to your profile
     #[arg(
@@ -48,7 +48,7 @@ pub struct Env {
 
 impl Command for Env {
     fn run(&self) -> anyhow::Result<()> {
-        let shell = get_shell();
+        let shell = shell::get_shell();
         if self.apply {
             return apply_profile(&shell);
         }
@@ -60,7 +60,6 @@ impl Command for Env {
     }
 }
 
-#[cfg(unix)]
 fn apply_profile(shell: &Shell) -> Result<()> {
     let profile_content = env::read_profile(shell)?;
     if profile_content.contains(PROFILE_MARKER) {
@@ -73,56 +72,34 @@ fn apply_profile(shell: &Shell) -> Result<()> {
         return Ok(());
     }
 
+    let apply_env_command = shell.get_apply_env_command()?;
+
     env::append_to_profile(
         shell,
-        &format!("\n{}\n{}\n\n", PROFILE_MARKER, r#"eval "$(goup env)""#),
+        &format!("\n{}\n{}\n\n", PROFILE_MARKER, apply_env_command),
     )?;
 
     success!(
         "Env vars have been appended to your profile. To apply them to the current \
                 terminal session, use the following command:\n{}",
-        style("$ eval \"$(goup env)\"").green().bright().italic()
+        style(apply_env_command).green().bright().italic(),
     );
 
-    Ok(())
-}
-
-#[cfg(windows)]
-fn apply_profile(shell: &Shell) -> Result<()> {
-    let profile_content = env::read_profile(shell)?;
-    if profile_content.contains(PROFILE_MARKER) {
-        warning!(
-            "You already have applied goup's env variables to your profile.\n\
-                    If you want to update them, please remove the entries below the \"{}\" header \
-                    as well as the header itself manually.",
-            PROFILE_MARKER
-        );
-        return Ok(());
-    }
-
-    env::append_to_profile(
-        shell,
-        &format!(
-            "\n{}\n{}\n\n",
-            PROFILE_MARKER, r#"goup env | Out-String | Invoke-Expression"#
-        ),
-    )?;
-
-    success!(
-        "Env vars have been appended to your profile. To apply them to the current \
-                terminal session, use the following command:\n{}\n\n{}",
-        style("> goup env | Out-String | Invoke-Expression")
+    if matches!(shell, Shell::PowerShell | Shell::Cmd) {
+        success!(
+            "\n{}\n{}",
+            style(
+                "You might need to enable script execution in PowerShell to load the \
+                profile automatically. Please go to this page for more information:"
+            )
             .green()
-            .bright()
             .italic(),
-        style(
-            "You might need to enable script execution in PowerShell to load the \
-                profile automatically. Please go to this page for more information:\n\
-                https:/go.microsoft.com/fwlink/?LinkID=135170"
-        )
-        .green()
-        .italic()
-    );
+            style("https:/go.microsoft.com/fwlink/?LinkID=135170")
+                .green()
+                .italic()
+                .underlined()
+        );
+    }
 
     Ok(())
 }
