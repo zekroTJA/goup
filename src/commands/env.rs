@@ -11,7 +11,7 @@ use whattheshell::Shell;
 
 const PROFILE_MARKER: &str = "# goup:envvars";
 
-#[cfg(target_family = "unix")]
+#[cfg(unix)]
 const LONG_ABOUT: &str = "\
 This command prints all necessary environment variables and values required \
 to use goup.
@@ -21,7 +21,7 @@ depending on your current shell) file in your $HOME directory. After that, \
 you can apply the changes to your current terminal session using \
 `eval \"$(goup env)\"`.";
 
-#[cfg(target_family = "windows")]
+#[cfg(windows)]
 const LONG_ABOUT: &str = "\
 This command prints all necessary environment variables and values required \
 to use goup.
@@ -60,7 +60,7 @@ impl Command for Env {
     }
 }
 
-#[cfg(target_family = "unix")]
+#[cfg(unix)]
 fn apply_profile() -> Result<()> {
     let profile_content = env::read_profile()?;
     if profile_content.contains(PROFILE_MARKER) {
@@ -87,7 +87,7 @@ fn apply_profile() -> Result<()> {
     Ok(())
 }
 
-#[cfg(target_family = "windows")]
+#[cfg(windows)]
 fn apply_profile(shell: &Shell) -> Result<()> {
     let profile_content = env::read_profile(shell)?;
     if profile_content.contains(PROFILE_MARKER) {

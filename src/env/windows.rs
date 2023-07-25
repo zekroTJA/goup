@@ -1,10 +1,7 @@
 use super::*;
-use crate::{
-    env::{get_current_install_dir, get_home_dir},
-    versions::Version,
-};
+use crate::versions::Version;
 use anyhow::Result;
-use std::{fs, os::windows::fs::symlink_dir, path::PathBuf};
+use std::{fs, os::windows::fs::symlink_dir};
 
 /// Creates a symlink to the SDK installation dir of
 /// the given [`Version`].

@@ -1,11 +1,11 @@
-#[cfg(target_family = "unix")]
+#[cfg(unix)]
 mod unix;
-#[cfg(target_family = "unix")]
+#[cfg(unix)]
 pub use unix::*;
 
-#[cfg(target_family = "windows")]
+#[cfg(windows)]
 mod windows;
-#[cfg(target_family = "windows")]
+#[cfg(windows)]
 pub use windows::*;
 
 mod shared;
