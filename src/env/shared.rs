@@ -259,6 +259,7 @@ pub fn check_env_applied() -> Result<()> {
     Ok(())
 }
 
+#[cfg(windows)]
 pub fn to_gitbash_path(pth: &str) -> String {
     let mut chars = pth.chars();
 
@@ -271,6 +272,7 @@ pub fn to_gitbash_path(pth: &str) -> String {
     res.replace('\\', "/")
 }
 
+#[cfg(windows)]
 pub fn to_gitbash_path_var(curr: &str) -> String {
     curr.split(';')
         .map(to_gitbash_path)
@@ -280,10 +282,12 @@ pub fn to_gitbash_path_var(curr: &str) -> String {
 
 #[cfg(test)]
 mod test {
-    use super::*;
 
+    #[cfg(windows)]
     #[test]
     fn test_to_gitbash_path() {
+        use super::*;
+
         assert_eq!("/c/users/foo/bar", to_gitbash_path(r"C:\users\foo\bar"));
         assert_eq!("users/foo/bar", to_gitbash_path(r"users\foo\bar"));
     }

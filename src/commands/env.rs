@@ -61,8 +61,8 @@ impl Command for Env {
 }
 
 #[cfg(unix)]
-fn apply_profile() -> Result<()> {
-    let profile_content = env::read_profile()?;
+fn apply_profile(shell: &Shell) -> Result<()> {
+    let profile_content = env::read_profile(shell)?;
     if profile_content.contains(PROFILE_MARKER) {
         warning!(
             "You already have applied goup's env variables to your profile.\n\
@@ -73,10 +73,10 @@ fn apply_profile() -> Result<()> {
         return Ok(());
     }
 
-    env::append_to_profile(&format!(
-        "\n{}\n{}\n\n",
-        PROFILE_MARKER, r#"eval "$(goup env)""#
-    ))?;
+    env::append_to_profile(
+        shell,
+        &format!("\n{}\n{}\n\n", PROFILE_MARKER, r#"eval "$(goup env)""#),
+    )?;
 
     success!(
         "Env vars have been appended to your profile. To apply them to the current \

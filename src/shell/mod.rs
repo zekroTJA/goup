@@ -71,7 +71,7 @@ impl ShellEnv for Shell {
         match self {
             Self::Bash | Self::Sh | Self::Zsh => {
                 #[cfg(not(windows))]
-                return Ok(p.to_string_lossy().to_string());
+                return Ok(path.to_string_lossy().to_string());
 
                 #[cfg(windows)]
                 return Ok(env::to_gitbash_path(&path.to_string_lossy()));
