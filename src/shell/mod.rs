@@ -38,12 +38,12 @@ impl ShellEnv for Shell {
         match self {
             Self::Bash | Self::Sh | Self::Zsh => {
                 #[cfg(not(windows))]
-                return Ok(format!("{curr}:{new}"));
+                return Ok(format!("{new}:{curr}"));
 
                 #[cfg(windows)]
                 return Ok(format!("{}:{}", env::to_gitbash_path_var(curr), new));
             }
-            Self::Cmd | Self::PowerShell => Ok(format!("{curr};{new}")),
+            Self::Cmd | Self::PowerShell => Ok(format!("{new};{curr}")),
             _ => Err(Error::UnsupportedShell),
         }
     }
