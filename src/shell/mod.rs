@@ -2,7 +2,10 @@ pub mod errors;
 
 use self::errors::Error;
 use crate::env;
-use std::{path::PathBuf, sync::OnceLock};
+use std::{
+    path::{Path, PathBuf},
+    sync::OnceLock,
+};
 use whattheshell::Shell;
 
 static SHELL: OnceLock<Shell> = OnceLock::new();
@@ -24,7 +27,7 @@ pub trait ShellEnv {
     fn get_setenv_command(&self, key: &str, val: &str) -> Result<String, Error>;
     fn append_to_path(&self, curr: &str, new: &str) -> Result<String, Error>;
     fn get_profile_dir(&self) -> Result<PathBuf, Error>;
-    fn path_to_string(&self, path: &PathBuf) -> Result<String, Error>;
+    fn path_to_string(&self, path: &Path) -> Result<String, Error>;
 }
 
 impl ShellEnv for Shell {
@@ -64,14 +67,14 @@ impl ShellEnv for Shell {
         }
     }
 
-    fn path_to_string(&self, path: &PathBuf) -> Result<String, Error> {
+    fn path_to_string(&self, path: &Path) -> Result<String, Error> {
         match self {
             Self::Bash | Self::Sh | Self::Zsh => {
                 #[cfg(not(windows))]
                 return Ok(p.to_string_lossy().to_string());
 
                 #[cfg(windows)]
-                return Ok(env::to_gitbash_path(&path.to_string_lossy().to_string()));
+                return Ok(env::to_gitbash_path(&path.to_string_lossy()));
             }
             Self::Cmd | Self::PowerShell => Ok(path.to_string_lossy().to_string()),
             _ => Err(Error::UnsupportedShell),

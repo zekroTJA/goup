@@ -17,7 +17,7 @@ use std::process::Command;
 /// ```
 pub fn exec(cmd: &[&str]) -> Result<String, Error> {
     if cmd.is_empty() {
-        return Err(Error::Parameters("command is empty".into()).into());
+        return Err(Error::Parameters("command is empty".into()));
     }
 
     let prog = cmd[0];
@@ -26,7 +26,7 @@ pub fn exec(cmd: &[&str]) -> Result<String, Error> {
 
     if !res.status.success() {
         let stderr = std::str::from_utf8(&res.stderr)?;
-        return Err(Error::Status(res.status, stderr.into()).into());
+        return Err(Error::Status(res.status, stderr.into()));
     }
 
     let stdout = std::str::from_utf8(&res.stdout)?;
