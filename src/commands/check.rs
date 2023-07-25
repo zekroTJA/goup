@@ -1,7 +1,7 @@
 use super::Command;
 use crate::{
     env::*,
-    success,
+    shell, success,
     versions::{get_upstream_versions, Version, VersionPart},
     warning,
 };
@@ -14,7 +14,7 @@ pub struct Check {}
 
 impl Command for Check {
     fn run(&self) -> anyhow::Result<()> {
-        check_env_applied()?;
+        check_env_applied(&shell::get_shell())?;
 
         let Some(current) = get_current_version()? else {
             warning!("No version has been selected.\n\

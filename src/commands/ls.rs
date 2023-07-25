@@ -1,5 +1,5 @@
 use super::Command;
-use crate::{env::*, warning};
+use crate::{env::*, shell, warning};
 use clap::Args;
 use console::style;
 
@@ -10,7 +10,7 @@ pub struct Ls {}
 
 impl Command for Ls {
     fn run(&self) -> anyhow::Result<()> {
-        check_env_applied()?;
+        check_env_applied(&shell::get_shell())?;
 
         let mut versions = get_installed_versions()?;
         if versions.is_empty() {

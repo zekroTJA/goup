@@ -37,7 +37,7 @@ def check_for_update():
     akane.assert_true(lines[-1].startswith("1.19"), f"line -1 was {lines[-1]}")
 
 
-@ akane.test()
+@akane.test()
 def switch_back():
     akane.exec("goup use 1.20.4")
     res = akane.exec("go version")
@@ -46,7 +46,7 @@ def switch_back():
         f"res was {res[:-1]}")
 
 
-@ akane.test()
+@akane.test()
 def list_local():
     res = akane.exec("goup ls")
     exp = "  1.19\n" \
@@ -54,7 +54,7 @@ def list_local():
     akane.assert_eq(exp, res)
 
 
-@ akane.test()
+@akane.test()
 def cleanup():
     akane.exec("goup clean --yes")
 

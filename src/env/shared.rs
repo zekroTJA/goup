@@ -1,16 +1,34 @@
-use crate::{versions::Version, warning};
+use crate::{shell::ShellEnv, versions::Version, warning};
 use anyhow::Result;
 use directories::UserDirs;
 use std::{
-    env,
     fs::{self, File},
     io::{self, Read, Write},
     path::{Path, PathBuf},
 };
-
-use super::get_profile_dir;
+use whattheshell::Shell;
 
 const CURRENT_VERSION_FILE: &str = ".current_version";
+
+/// Returns all required environment variables.
+pub fn get_env_vars(shell: &Shell) -> Result<String> {
+    let path = std::env::var("PATH")?;
+
+    let vars = vec![
+        (
+            "PATH",
+            shell.append_to_path(&path, &shell.path_to_string(get_current_bin_dir()?)?)?,
+        ),
+        ("GOROOT", shell.path_to_string(get_current_install_dir()?)?),
+    ];
+
+    let lines: Result<Vec<_>, _> = vars
+        .iter()
+        .map(|(k, v)| shell.get_setenv_command(k, v))
+        .collect();
+
+    Ok(lines?.join("\n"))
+}
 
 /// Returns the current users home directory.
 ///
@@ -185,8 +203,8 @@ pub fn drop_install_dir() -> Result<()> {
 /// the current users `$HOME` directory.
 ///
 /// See [`get_profile_dir`] for more information.
-pub fn read_profile() -> Result<String> {
-    let profile_dir = get_profile_dir()?;
+pub fn read_profile(shell: &Shell) -> Result<String> {
+    let profile_dir = shell.get_profile_dir()?;
 
     if !profile_dir.exists() {
         return Ok(String::new());
@@ -203,8 +221,8 @@ pub fn read_profile() -> Result<String> {
 /// the current users `$HOME` directory.
 ///
 /// See [`get_profile_dir`] for more information.
-pub fn append_to_profile(content: &str) -> Result<()> {
-    let profile_dir = get_profile_dir()?;
+pub fn append_to_profile(shell: &Shell, content: &str) -> Result<()> {
+    let profile_dir = shell.get_profile_dir()?;
 
     let mut f = if profile_dir.exists() {
         File::options().append(true).open(profile_dir)?
@@ -222,15 +240,8 @@ pub fn append_to_profile(content: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn is_env_applied() -> Result<bool> {
-    let current_install_dir = get_current_install_dir()?;
-    let current_install_dir = current_install_dir.to_string_lossy();
-    let set_install_dir = env::var("GOROOT").unwrap_or_default();
-    Ok(set_install_dir == current_install_dir)
-}
-
-pub fn check_env_applied() -> Result<()> {
-    if !is_env_applied()? {
+pub fn check_env_applied(shell: &Shell) -> Result<()> {
+    if !shell.is_env_applied()? {
         warning!(
             "Seems like necessary environment variables have not been applied. \
             This results in the selected SDK version not being available in the terminal.\n\
@@ -238,4 +249,39 @@ pub fn check_env_applied() -> Result<()> {
         );
     }
     Ok(())
+}
+
+#[cfg(windows)]
+pub fn to_gitbash_path(pth: &str) -> String {
+    let pth = pth.replace('\\', "/");
+
+    let mut chars = pth.chars();
+
+    if chars.nth(1) == Some(':') && chars.next() == Some('/') {
+        format!("/{}{}", &pth[..1].to_lowercase(), &pth[2..])
+    } else {
+        pth
+    }
+}
+
+#[cfg(windows)]
+pub fn to_gitbash_path_var(curr: &str) -> String {
+    curr.split(';')
+        .map(to_gitbash_path)
+        .collect::<Vec<_>>()
+        .join(":")
+}
+
+#[cfg(test)]
+mod test {
+
+    #[cfg(windows)]
+    #[test]
+    fn test_to_gitbash_path() {
+        use super::*;
+
+        assert_eq!("/c/users/foo/bar", to_gitbash_path(r"C:\users\foo\bar"));
+        assert_eq!("/c/users/foo/bar", to_gitbash_path(r"C:/users/foo/bar"));
+        assert_eq!("users/foo/bar", to_gitbash_path(r"users\foo\bar"));
+    }
 }

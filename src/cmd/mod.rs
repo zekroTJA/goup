@@ -1,6 +1,6 @@
 pub mod errors;
 
-use self::errors::{Error, ErrorKind};
+use self::errors::Error;
 use std::process::Command;
 
 /// Execute a given command and return its
@@ -17,7 +17,7 @@ use std::process::Command;
 /// ```
 pub fn exec(cmd: &[&str]) -> Result<String, Error> {
     if cmd.is_empty() {
-        return Err(ErrorKind::Parameters("command is empty".into()).into());
+        return Err(Error::Parameters("command is empty".into()));
     }
 
     let prog = cmd[0];
@@ -26,7 +26,7 @@ pub fn exec(cmd: &[&str]) -> Result<String, Error> {
 
     if !res.status.success() {
         let stderr = std::str::from_utf8(&res.stderr)?;
-        return Err(ErrorKind::Status((res.status, stderr.into())).into());
+        return Err(Error::Status(res.status, stderr.into()));
     }
 
     let stdout = std::str::from_utf8(&res.stdout)?;
