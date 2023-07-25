@@ -23,7 +23,7 @@ fn get_long_about() -> String {
         `{}`.",
         shell
             .get_profile_dir()
-            .and_then(|p| shell.path_to_string(&p))
+            .and_then(|p| shell.path_to_string(p))
             .expect("failed getting profile directory"),
         shell
             .get_apply_env_command()

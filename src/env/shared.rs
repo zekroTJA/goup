@@ -2,7 +2,6 @@ use crate::{shell::ShellEnv, versions::Version, warning};
 use anyhow::Result;
 use directories::UserDirs;
 use std::{
-    env,
     fs::{self, File},
     io::{self, Read, Write},
     path::{Path, PathBuf},
@@ -18,9 +17,9 @@ pub fn get_env_vars(shell: &Shell) -> Result<String> {
     let vars = vec![
         (
             "PATH",
-            shell.append_to_path(&path, &shell.path_to_string(&get_current_bin_dir()?)?)?,
+            shell.append_to_path(&path, &shell.path_to_string(get_current_bin_dir()?)?)?,
         ),
-        ("GOROOT", shell.path_to_string(&get_current_install_dir()?)?),
+        ("GOROOT", shell.path_to_string(get_current_install_dir()?)?),
     ];
 
     let lines: Result<Vec<_>, _> = vars
