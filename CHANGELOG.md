@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.3.0
+
+- Implemented a shell abstraction to infer which shell is currently used. This adds support for GitBash on Windows! 🎉
+
+- Fixed a bug where unstable versions were suggested when checking for new updates with a stable version installed.
+
+- Added alias `up` to `use` command.
+
+- Added version aliases for `use` command (`latest` and `s` for `stable` and `rc` for `unstable`).
+
 ## v1.2.0
 
 - Windows with PowerShell is now supported! 🥳
