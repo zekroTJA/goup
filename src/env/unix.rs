@@ -1,10 +1,7 @@
 use super::*;
-use crate::{
-    env::{get_current_install_dir, get_home_dir},
-    versions::Version,
-};
+use crate::versions::Version;
 use anyhow::Result;
-use std::{fs, os::unix::fs::symlink, path::PathBuf};
+use std::{fs, os::unix::fs::symlink};
 
 /// Creates a symlink to the SDK installation dir of
 /// the given [`Version`].
@@ -34,22 +31,4 @@ pub fn link_current_version(v: Option<&Version>) -> Result<()> {
     }
 
     Ok(())
-}
-
-/// Returns the path to the current users .zshenv file,
-/// if it exists. Otherwise, the path to the .profile
-/// file is returned.
-pub fn get_profile_dir() -> Result<PathBuf> {
-    let home = get_home_dir()?;
-
-    let zshenv = home.join(".zshenv");
-    if zshenv.exists() {
-        Ok(zshenv)
-    } else {
-        Ok(home.join(".profile"))
-    }
-}
-
-fn path_to_string(p: PathBuf) -> String {
-    p.to_string_lossy().to_string()
 }
