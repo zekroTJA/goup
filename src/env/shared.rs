@@ -8,6 +8,8 @@ use std::{
 };
 use whattheshell::Shell;
 
+/// The file where the currently selected version is
+/// written into.
 const CURRENT_VERSION_FILE: &str = ".current_version";
 
 /// Returns all required environment variables.
@@ -240,6 +242,8 @@ pub fn append_to_profile(shell: &Shell, content: &str) -> Result<()> {
     Ok(())
 }
 
+/// Checks if the `GOROOT` environment variable is applied and prints a
+/// warning message to the terminal if not.
 pub fn check_env_applied(shell: &Shell) -> Result<()> {
     if !shell.is_env_applied()? {
         warning!(
@@ -251,6 +255,7 @@ pub fn check_env_applied(shell: &Shell) -> Result<()> {
     Ok(())
 }
 
+/// Takes a path string and transforms it to a GitBash style path.
 #[cfg(windows)]
 pub fn to_gitbash_path(pth: &str) -> String {
     let pth = pth.replace('\\', "/");
@@ -264,6 +269,9 @@ pub fn to_gitbash_path(pth: &str) -> String {
     }
 }
 
+/// Takes an path concatenation and transforms it to a bash style path
+/// concatenation. Every contained path is transformed to a GitBash
+/// style path.
 #[cfg(windows)]
 pub fn to_gitbash_path_var(curr: &str) -> String {
     curr.split(';')

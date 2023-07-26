@@ -8,20 +8,34 @@ use std::{
 };
 use whattheshell::Shell;
 
+/// A singleton OnceLock instance of the inferred current shell.
 static SHELL: OnceLock<Shell> = OnceLock::new();
 
+/// Returns the inferred current shell. If it has not been initialized already,
+/// it will be initialized. This might fail with a panic.
 pub fn get_shell() -> Shell {
     SHELL
         .get_or_init(|| Shell::infer().expect("failed inferring current shell"))
         .clone()
 }
 
+/// Provides an abstraction for shell-dependent actions.
 pub trait ShellEnv {
+    /// Returns the assembled shell command to set the given environment
+    /// variable by key and value.
     fn get_setenv_command(&self, key: &str, val: &str) -> Result<String, Error>;
+    /// Appends the given path string `new` to the passed `current` path
+    /// concatenation string.
     fn append_to_path(&self, curr: &str, new: &str) -> Result<String, Error>;
+    /// Returns the directory of the users profile file.
     fn get_profile_dir(&self) -> Result<PathBuf, Error>;
+    /// Takes a path reference and converts it to a shell-compatible string.
     fn path_to_string<T: AsRef<Path>>(&self, path: T) -> Result<String, Error>;
+    /// Returns the command to apply the env variables to the current
+    /// shell session using the output of `goup env`.
     fn get_apply_env_command(&self) -> Result<&'static str, Error>;
+    /// Returns true if the env variable `GOROOT` is correcly applied in
+    /// the current shell environment.
     fn is_env_applied(&self) -> Result<bool, Error>;
 }
 
