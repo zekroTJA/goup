@@ -28,8 +28,8 @@ impl Command for Use {
         let version = self.version.clone().to_lowercase();
 
         let version: Version = match version.to_lowercase().as_str() {
-            "stable" => get_latest_upstream_version(false)?,
-            "unstable" => get_latest_upstream_version(true)?,
+            "stable" | "latest" | "s" => get_latest_upstream_version(false)?,
+            "unstable" | "rc" => get_latest_upstream_version(true)?,
             v => find_upstream_version(&v.parse()?)?,
         };
 
