@@ -2,7 +2,7 @@ use super::Command;
 use crate::{
     env::*,
     shell, success,
-    versions::{get_upstream_versions, Version, VersionPart},
+    versions::{self, get_upstream_versions, Version},
     warning,
 };
 use clap::Args;
@@ -24,23 +24,9 @@ impl Command for Check {
 
         let upstream_versions = get_upstream_versions()?;
 
-        let new_minor = upstream_versions
-            .iter()
-            .rev()
-            .find(|v| v.minor > current.minor && current.strip_after(VersionPart::Major).covers(v));
-
-        let new_patch = upstream_versions
-            .iter()
-            .rev()
-            .find(|v| v.patch > current.patch && current.strip_after(VersionPart::Minor).covers(v));
-
-        let mut new_pre = None;
-        if !current.is_stable() {
-            new_pre = upstream_versions
-                .iter()
-                .rev()
-                .find(|v| v.pre > current.pre && current.strip_after(VersionPart::Patch).covers(v));
-        }
+        let new_minor = versions::get_new_minor(&upstream_versions, &current);
+        let new_patch = versions::get_new_patch(&upstream_versions, &current);
+        let new_pre = versions::get_new_pre(&upstream_versions, &current);
 
         checkprint("pre-release", &current, new_pre);
         checkprint("minor", &current, new_minor);

@@ -1,4 +1,4 @@
-use super::Version;
+use super::{Version, VersionPart};
 use crate::{
     cmd::{self, exec},
     warning,
@@ -117,4 +117,106 @@ pub fn find_upstream_version(s: &Version) -> Result<Version> {
         .find(|v| s.covers(v))
         .cloned()
         .ok_or_else(|| anyhow::anyhow!("no matching stable version found"))
+}
+
+pub fn get_new_minor<'a>(versions: &'a [Version], current: &Version) -> Option<&'a Version> {
+    versions.iter().rev().find(|v| {
+        current.is_stable() == v.is_stable()
+            && v.minor > current.minor
+            && current.strip_after(VersionPart::Major).covers(v)
+    })
+}
+
+pub fn get_new_patch<'a>(versions: &'a [Version], current: &Version) -> Option<&'a Version> {
+    versions
+        .iter()
+        .rev()
+        .find(|v| v.patch > current.patch && current.strip_after(VersionPart::Minor).covers(v))
+}
+
+pub fn get_new_pre<'a>(versions: &'a [Version], current: &Version) -> Option<&'a Version> {
+    if current.is_stable() {
+        return None;
+    }
+
+    versions
+        .iter()
+        .rev()
+        .find(|v| v.pre > current.pre && current.strip_after(VersionPart::Patch).covers(v))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn get_versions() -> Vec<Version> {
+        vec![
+            "1.19.0".parse().unwrap(),
+            "1.19.1".parse().unwrap(),
+            "1.19.2".parse().unwrap(),
+            "1.19.3".parse().unwrap(),
+            "1.20.0".parse().unwrap(),
+            "1.20.1".parse().unwrap(),
+            "1.20.2".parse().unwrap(),
+            "1.20.3".parse().unwrap(),
+            "1.20.4".parse().unwrap(),
+            "1.21.0".parse().unwrap(),
+            "1.21.1".parse().unwrap(),
+            "1.21.2".parse().unwrap(),
+            "1.21.3".parse().unwrap(),
+            "1.22rc1".parse().unwrap(),
+            "1.22rc2".parse().unwrap(),
+            "1.22rc3".parse().unwrap(),
+        ]
+    }
+
+    #[test]
+    fn test_get_new_minor() {
+        let versions = get_versions();
+
+        let current = "1.20.3".parse().unwrap();
+        let new = get_new_minor(&versions, &current);
+        let exp = Some("1.21.3".parse().unwrap());
+        assert_eq!(exp.as_ref(), new);
+
+        let current = "1.21.1".parse().unwrap();
+        let new = get_new_minor(&versions, &current);
+        let exp = None;
+        assert_eq!(exp.as_ref(), new);
+    }
+
+    #[test]
+    fn test_get_new_patch() {
+        let versions = get_versions();
+
+        let current = "1.20.3".parse().unwrap();
+        let new = get_new_patch(&versions, &current);
+        let exp = Some("1.20.4".parse().unwrap());
+        assert_eq!(exp.as_ref(), new);
+
+        let current = "1.19.3".parse().unwrap();
+        let new = get_new_patch(&versions, &current);
+        let exp = None;
+        assert_eq!(exp.as_ref(), new);
+    }
+
+    #[test]
+    fn test_get_new_pre() {
+        let versions = get_versions();
+
+        let current = "1.22rc1".parse().unwrap();
+        let new = get_new_pre(&versions, &current);
+        let exp = Some("1.22rc3".parse().unwrap());
+        assert_eq!(exp.as_ref(), new);
+
+        let current = "1.21.3".parse().unwrap();
+        let new = get_new_pre(&versions, &current);
+        let exp = None;
+        assert_eq!(exp.as_ref(), new);
+
+        let current = "1.22rc3".parse().unwrap();
+        let new = get_new_pre(&versions, &current);
+        let exp = None;
+        assert_eq!(exp.as_ref(), new);
+    }
 }
