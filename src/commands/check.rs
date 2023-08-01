@@ -1,3 +1,5 @@
+use std::env;
+
 use super::Command;
 use crate::{
     env::*,
@@ -10,7 +12,12 @@ use console::style;
 
 /// Check for updates.
 #[derive(Args)]
-pub struct Check {}
+pub struct Check {
+    #[arg(short, long, default_value_t = false)]
+    /// Only print when updates are available;
+    /// Designed to be used in profile file.
+    notify: bool,
+}
 
 impl Command for Check {
     fn run(&self) -> anyhow::Result<()> {
@@ -28,12 +35,23 @@ impl Command for Check {
         let new_patch = versions::get_new_patch(&upstream_versions, &current);
         let new_pre = versions::get_new_pre(&upstream_versions, &current);
 
-        checkprint("pre-release", &current, new_pre);
-        checkprint("minor", &current, new_minor);
-        checkprint("patch", &current, new_patch);
-
         if new_pre.is_none() && new_minor.is_none() && new_patch.is_none() {
-            success!("You are up to date with the latest upstream version!");
+            if !self.notify {
+                success!("You are up to date with the latest upstream version!");
+            }
+        } else {
+            success!("New Go versions are available!");
+            checkprint("pre-release", &current, new_pre);
+            checkprint("minor", &current, new_minor);
+            checkprint("patch", &current, new_patch);
+
+            if self.notify {
+                let binname = env::current_exe()
+                    .ok()
+                    .and_then(|pb| pb.file_name().map(|s| s.to_string_lossy().to_string()))
+                    .unwrap_or("goup".into());
+                success!("\nUse `{binname} use` to upgrade.");
+            }
         }
 
         Ok(())
@@ -42,9 +60,9 @@ impl Command for Check {
 
 fn checkprint(typ: &str, current: &Version, v: Option<&Version>) {
     if let Some(new) = v {
-        success!("New {typ} version is available!");
         println!(
-            "{} → {}",
+            "{}:  {} → {}",
+            style(typ).magenta(),
             style(current.to_string()).dim(),
             style(new).cyan()
         );
