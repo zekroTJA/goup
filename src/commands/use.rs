@@ -17,20 +17,22 @@ use zip::read::ZipArchive;
 pub struct Use {
     /// Specify a specific version or select the latest
     /// stable or unstable release.
-    #[arg(default_value = "stable")]
-    version: String,
+    version: Option<String>,
 }
 
 impl Command for Use {
     fn run(&self) -> anyhow::Result<()> {
         check_env_applied(&shell::get_shell())?;
 
-        let version = self.version.clone().to_lowercase();
-
-        let version: Version = match version.to_lowercase().as_str() {
-            "stable" | "latest" | "s" => get_latest_upstream_version(false)?,
-            "unstable" | "rc" => get_latest_upstream_version(true)?,
-            v => find_upstream_version(&v.parse()?)?,
+        let version_inpt = self.version.as_ref().map(|v| v.to_lowercase());
+        let version: Version = match version_inpt.as_deref() {
+            Some("stable") | Some("latest") | Some("s") => get_latest_upstream_version(false)?,
+            Some("unstable") | Some("rc") => get_latest_upstream_version(true)?,
+            Some(v) => find_upstream_version(&v.parse()?)?,
+            None => {
+                let current = get_current_version()?;
+                get_latest_upstream_version(current.is_some_and(|c| !c.is_stable()))?
+            }
         };
 
         let install_dir = get_version_installation_dir(&version)?;
