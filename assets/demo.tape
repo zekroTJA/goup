@@ -2,12 +2,12 @@ Set FontSize 30
 Set Padding 30
 Set WindowBar Colorful
 
-Type "goup env -p"
+Type "goup env --apply"
 Enter
 Sleep 1s
 Type "source ~/.profile"
 Enter
-Sleep 1s
+Sleep 1.5s
 Type "echo $GOROOT"
 Enter
 Sleep 1s
@@ -20,7 +20,7 @@ Sleep 1s
 Type "go version"
 Enter
 Sleep 1s
-Type "goup use 1.19"
+Type "goup use 1.20"
 Enter
 Sleep 7s
 Type "goup ls"
