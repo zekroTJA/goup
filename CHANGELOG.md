@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.4.0
+
+- Updated the `clean` command:
+  - The command does now remove all installed SDKs instead of the selected one by default.
+  - Added the `--all` flag to remove all SDKs – including the selected one.
+  - Removed the yes-no accept prompt and removed the `--yes` flag.
+
+- Updated the `use` command:
+  - When no specific `VERSION` parameter is passed to the command and if an unstable instance is installed, the latest unstable instance will be used if available and if the latest version is not a stable one. Otherwise, the latest stable instance is installed. 
+
 ## v1.3.0
 
 - Implemented a shell abstraction to infer which shell is currently used. This adds support for GitBash on Windows! 🎉
