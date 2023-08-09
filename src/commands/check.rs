@@ -13,7 +13,7 @@ use console::style;
 /// Check for updates.
 #[derive(Args)]
 pub struct Check {
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short, long)]
     /// Only print when updates are available;
     /// Designed to be used in profile file.
     notify: bool,

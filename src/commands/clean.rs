@@ -7,25 +7,39 @@ use clap::Args;
 #[derive(Args)]
 #[command(visible_aliases = ["purge", "prune"])]
 pub struct Clean {
-    /// Run cleanup without prompt
+    /// Clean up **all** installed SDK versions
     #[arg(short, long)]
-    yes: bool,
+    all: bool,
 }
 
 impl Command for Clean {
     fn run(&self) -> anyhow::Result<()> {
-        if !self.yes && !accept("Do you really want to delete all installed SDKs?", false)? {
-            print_note("Aborted.");
-            return Ok(());
-        }
-
         print_status("Removing SDKs ...");
 
-        link_current_version(None)?;
-        write_current_version(None)?;
-        drop_install_dir()?;
+        if self.all {
+            link_current_version(None)?;
+            write_current_version(None)?;
+            drop_install_dir()?;
+        } else {
+            let versions = get_installed_versions()?;
+            let curr = get_current_version()?;
+            let errs: Vec<_> = versions
+                .iter()
+                .filter(|v| Some(*v) != curr.as_ref())
+                .map(|v| (v, drop_version(v)))
+                .filter(|(_, r)| matches!(r, Err(_)))
+                .map(|(v, r)| format!("- {}: {}", v, r.unwrap_err()))
+                .collect();
 
-        print_success("All SDKs have been removed.");
+            if !errs.is_empty() {
+                anyhow::bail!(
+                    "Failed removing the following versions:\n{}",
+                    errs.join("\n")
+                )
+            }
+        }
+
+        print_success("SDKs have been cleaned up.");
 
         Ok(())
     }

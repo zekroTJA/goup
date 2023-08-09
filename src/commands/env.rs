@@ -36,13 +36,7 @@ fn get_long_about() -> String {
 #[command(long_about = get_long_about())]
 pub struct Env {
     /// Apply the environment variables to your profile
-    #[arg(
-        short,
-        short_alias = 'p',
-        long,
-        alias = "profile",
-        default_value_t = false
-    )]
+    #[arg(short, short_alias = 'p', long, alias = "profile")]
     apply: bool,
 }
 
