@@ -29,12 +29,12 @@ def current():
 def check_for_update():
     res = akane.exec("goup check")
     lines = res.split("\n")[0:-1]
-    akane.assert_true("New minor version is available!" in lines[-4],
-                      f"line -4 was {lines[-4]}")
-    akane.assert_true(lines[-3].startswith("1.19"), f"line -3 was {lines[-3]}")
-    akane.assert_true("New patch version is available!" in lines[-2],
+    akane.assert_true("New Go versions are available!" in lines[-3],
+                      f"line -4 was {lines[-3]}")
+    akane.assert_true(lines[-2].startswith("minor:  1.19"),
                       f"line -2 was {lines[-2]}")
-    akane.assert_true(lines[-1].startswith("1.19"), f"line -1 was {lines[-1]}")
+    akane.assert_true(lines[-1].startswith("patch:  1.19"),
+                      f"line -1 was {lines[-1]}")
 
 
 @akane.test()
