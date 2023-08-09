@@ -56,7 +56,7 @@ def list_local():
 
 @akane.test()
 def cleanup():
-    akane.exec("goup clean --yes")
+    akane.exec("goup clean --all")
 
 
 def main() -> int:
