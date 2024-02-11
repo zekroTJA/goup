@@ -1,6 +1,6 @@
 use super::Command;
 use crate::{
-    env::{self, get_env_vars},
+    env::{self, get_env_vars, get_setenv_commands},
     shell::{self, ShellEnv},
     success, warning,
 };
@@ -47,7 +47,7 @@ impl Command for Env {
             return apply_profile(&shell);
         }
 
-        let vars = get_env_vars(&shell)?;
+        let vars = get_setenv_commands(&shell)?;
         println!("{}", vars);
 
         Ok(())

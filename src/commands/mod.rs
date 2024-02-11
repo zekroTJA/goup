@@ -1,4 +1,4 @@
-crate::prelude!(current, env, ls, lsr, r#use, drop, clean, check);
+crate::prelude!(current, env, ls, lsr, r#use, drop, clean, check, exec);
 
 use anyhow::Result;
 

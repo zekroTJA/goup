@@ -13,16 +13,22 @@ use whattheshell::Shell;
 const CURRENT_VERSION_FILE: &str = ".current_version";
 
 /// Returns all required environment variables.
-pub fn get_env_vars(shell: &Shell) -> Result<String> {
+pub fn get_env_vars(shell: &Shell) -> Result<Vec<(&'static str, String)>> {
     let path = std::env::var("PATH")?;
 
-    let vars = [
+    Ok(vec![
         (
             "PATH",
             shell.append_to_path(&path, &shell.path_to_string(get_current_bin_dir()?)?)?,
         ),
         ("GOROOT", shell.path_to_string(get_current_install_dir()?)?),
-    ];
+    ])
+}
+
+pub fn get_setenv_commands(shell: &Shell) -> Result<String> {
+    let path = std::env::var("PATH")?;
+
+    let vars = get_env_vars(shell)?;
 
     let lines: Result<Vec<_>, _> = vars
         .iter()
