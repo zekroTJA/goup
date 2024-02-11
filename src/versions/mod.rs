@@ -1,4 +1,4 @@
-pub(self) mod parser;
+mod parser;
 
 mod version;
 pub use version::*;

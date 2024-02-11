@@ -16,7 +16,7 @@ const CURRENT_VERSION_FILE: &str = ".current_version";
 pub fn get_env_vars(shell: &Shell) -> Result<String> {
     let path = std::env::var("PATH")?;
 
-    let vars = vec![
+    let vars = [
         (
             "PATH",
             shell.append_to_path(&path, &shell.path_to_string(get_current_bin_dir()?)?)?,
