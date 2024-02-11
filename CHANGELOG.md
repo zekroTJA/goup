@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.4.1
+
+- Allow versions passed to commands be prefixed with `v` or `V` (example `v1.22.0`).
+
 ## v1.4.0
 
 - Updated the `clean` command:
