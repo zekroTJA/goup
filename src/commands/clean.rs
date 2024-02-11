@@ -27,7 +27,7 @@ impl Command for Clean {
                 .iter()
                 .filter(|v| Some(*v) != curr.as_ref())
                 .map(|v| (v, drop_version(v)))
-                .filter(|(_, r)| matches!(r, Err(_)))
+                .filter(|(_, r)| r.is_err())
                 .map(|(v, r)| format!("- {}: {}", v, r.unwrap_err()))
                 .collect();
 
