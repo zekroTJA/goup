@@ -1,7 +1,11 @@
 use super::{Version, VersionState};
 use anyhow::Result;
 use nom::{
-    bytes::complete::*, character::complete::char, combinator::map_res, error::ErrorKind, IResult,
+    bytes::complete::*,
+    character::complete::char,
+    combinator::map_res,
+    error::{Error, ErrorKind},
+    IResult,
 };
 
 fn number(s: &str) -> IResult<&str, usize> {
@@ -34,12 +38,22 @@ fn suffix(s: &str) -> IResult<&str, VersionState> {
     }))
 }
 
+fn version_prefix(s: &str) -> IResult<&str, ()> {
+    char::<&str, Error<_>>('v')(s)
+        .or_else(|_| char::<&str, Error<_>>('V')(s))
+        .map(|(s, _)| (s, ()))
+        .or(Ok((s, ())))
+}
+
 /// Takes a Golang release version formatted string and
 /// parses it into a [`Version`].
 pub fn parse_version(s: &str) -> Result<Version> {
     let mut version = Version::default();
 
-    let (s, major) = number(s).map_err(|_| anyhow::anyhow!("failed parsing major version"))?;
+    let (s, _) =
+        version_prefix(s).map_err(|e| anyhow::anyhow!("failed parsing version prefix: {e}"))?;
+
+    let (s, major) = number(s).map_err(|e| anyhow::anyhow!("failed parsing major version: {e}"))?;
     version.major = major;
 
     if s.is_empty() {
@@ -47,12 +61,12 @@ pub fn parse_version(s: &str) -> Result<Version> {
     }
 
     let Ok((s, _)) = delim(s) else {
-        let (_, suffix) = suffix(s).map_err(|_| anyhow::anyhow!("failed parsing suffix"))?;
+        let (_, suffix) = suffix(s).map_err(|e| anyhow::anyhow!("failed parsing suffix: {e}"))?;
         version.pre = Some(suffix);
         return Ok(version);
     };
 
-    let (s, minor) = number(s).map_err(|_| anyhow::anyhow!("failed parsing minor version"))?;
+    let (s, minor) = number(s).map_err(|e| anyhow::anyhow!("failed parsing minor version: {e}"))?;
     version.minor = Some(minor);
 
     if s.is_empty() {
@@ -60,19 +74,19 @@ pub fn parse_version(s: &str) -> Result<Version> {
     }
 
     let Ok((s, _)) = delim(s) else {
-        let (_, suffix) = suffix(s).map_err(|_| anyhow::anyhow!("failed parsing suffix"))?;
+        let (_, suffix) = suffix(s).map_err(|e| anyhow::anyhow!("failed parsing suffix: {e}"))?;
         version.pre = Some(suffix);
         return Ok(version);
     };
 
-    let (s, patch) = number(s).map_err(|_| anyhow::anyhow!("failed parsing patch version"))?;
+    let (s, patch) = number(s).map_err(|e| anyhow::anyhow!("failed parsing patch version: {e}"))?;
     version.patch = Some(patch);
 
     if s.is_empty() {
         return Ok(version);
     }
 
-    let (_, suffix) = suffix(s).map_err(|_| anyhow::anyhow!("failed parsing suffix"))?;
+    let (_, suffix) = suffix(s).map_err(|e| anyhow::anyhow!("failed parsing suffix: {e}"))?;
     version.pre = Some(suffix);
 
     Ok(version)

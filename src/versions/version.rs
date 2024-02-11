@@ -284,6 +284,26 @@ mod test {
                 ..Default::default()
             }
         );
+
+        assert_eq!(
+            Version::from_str("v1.2.345").unwrap(),
+            Version {
+                major: 1,
+                minor: Some(2),
+                patch: Some(345),
+                ..Default::default()
+            }
+        );
+
+        assert_eq!(
+            Version::from_str("V1.2.345").unwrap(),
+            Version {
+                major: 1,
+                minor: Some(2),
+                patch: Some(345),
+                ..Default::default()
+            }
+        );
     }
 
     #[test]
