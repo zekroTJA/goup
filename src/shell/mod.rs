@@ -44,20 +44,27 @@ impl ShellEnv for Shell {
         match self {
             Self::Bash | Self::Sh | Self::Zsh => Ok(format!("export {key}=\"{val}\"")),
             Self::Cmd | Self::PowerShell => Ok(format!("$env:{key} = \"{val}\"")),
-            // use toml format to let nushell parse the values
-            Self::Nushell => Ok(format!("{key} = \"{val}\"")),
+            // use toml format to let Nushell parse the values
+            Self::Nushell => Ok(format!("{key} = '''{val}'''")),
             _ => Err(Error::UnsupportedShell),
         }
     }
 
     fn append_to_path(&self, curr: &str, new: &str) -> Result<String, Error> {
         match self {
-            Self::Bash | Self::Sh | Self::Zsh | Self::Nushell => {
+            Self::Bash | Self::Sh | Self::Zsh => {
                 #[cfg(not(windows))]
                 return Ok(format!("{new}:{curr}"));
 
                 #[cfg(windows)]
                 return Ok(format!("{}:{}", env::to_gitbash_path_var(curr), new));
+            }
+            Self::Nushell => {
+                #[cfg(not(windows))]
+                return Ok(format!("{new}:{curr}"));
+
+                #[cfg(windows)]
+                return Ok(format!("{new};{curr}"));
             }
             Self::Cmd | Self::PowerShell => Ok(format!("{new};{curr}")),
             _ => Err(Error::UnsupportedShell),
@@ -106,10 +113,26 @@ impl ShellEnv for Shell {
         match self {
             Self::Bash | Self::Sh | Self::Zsh => Ok(r#"eval "$(goup env)""#),
             Self::Cmd | Self::PowerShell => Ok("goup env | Out-String | Invoke-Expression"),
-            #[cfg(not(windows))]
-            Self::Nushell => Ok("load-env (goup env | from toml | update PATH {do $env.ENV_CONVERSIONS.PATH.from_string $in})"),
-            #[cfg(windows)]
-            Self::Nushell => Ok("load-env (goup env | from toml | update Path {do $env.ENV_CONVERSIONS.Path.from_string $in})"),
+
+            // Nushell doesn't support eval
+            // https://www.nushell.sh/book/how_nushell_code_gets_run.html#eval-function
+            Self::Nushell => {
+                #[cfg(not(windows))]
+                return Ok("load-env (\
+                    goup env \
+                    | from toml \
+                    | update PATH {do $env.ENV_CONVERSIONS.PATH.from_string $in}\
+                )");
+
+                #[cfg(windows)]
+                return Ok("load-env (\
+                    goup env \
+                    | from toml \
+                    | rename -c {PATH: Path} \
+                    | update Path {do $env.ENV_CONVERSIONS.Path.from_string $in}\
+                )");
+            }
+
             _ => Err(Error::UnsupportedShell),
         }
     }
