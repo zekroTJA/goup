@@ -44,6 +44,8 @@ impl ShellEnv for Shell {
         match self {
             Self::Bash | Self::Sh | Self::Zsh => Ok(format!("export {key}=\"{val}\"")),
             Self::Cmd | Self::PowerShell => Ok(format!("$env:{key} = \"{val}\"")),
+            // use toml format to let Nushell parse the values
+            Self::Nushell => Ok(format!("{key} = '''{val}'''")),
             _ => Err(Error::UnsupportedShell),
         }
     }
@@ -56,6 +58,13 @@ impl ShellEnv for Shell {
 
                 #[cfg(windows)]
                 return Ok(format!("{}:{}", env::to_gitbash_path_var(curr), new));
+            }
+            Self::Nushell => {
+                #[cfg(not(windows))]
+                return Ok(format!("{new}:{curr}"));
+
+                #[cfg(windows)]
+                return Ok(format!("{new};{curr}"));
             }
             Self::Cmd | Self::PowerShell => Ok(format!("{new};{curr}")),
             _ => Err(Error::UnsupportedShell),
@@ -72,6 +81,14 @@ impl ShellEnv for Shell {
                 .join("Documents")
                 .join("WindowsPowerShell")
                 .join("Microsoft.PowerShell_profile.ps1")),
+            #[cfg(not(windows))]
+            Self::Nushell => Ok(home.join(".config").join("nushell").join("config.nu")),
+            #[cfg(windows)]
+            Self::Nushell => Ok(home
+                .join("AppData")
+                .join("Roaming")
+                .join("nushell")
+                .join("config.nu")),
             _ => Err(Error::UnsupportedShell),
         }
     }
@@ -85,7 +102,9 @@ impl ShellEnv for Shell {
                 #[cfg(windows)]
                 return Ok(env::to_gitbash_path(&path.as_ref().to_string_lossy()));
             }
-            Self::Cmd | Self::PowerShell => Ok(path.as_ref().to_string_lossy().to_string()),
+            Self::Cmd | Self::PowerShell | Self::Nushell => {
+                Ok(path.as_ref().to_string_lossy().to_string())
+            }
             _ => Err(Error::UnsupportedShell),
         }
     }
@@ -94,6 +113,26 @@ impl ShellEnv for Shell {
         match self {
             Self::Bash | Self::Sh | Self::Zsh => Ok(r#"eval "$(goup env)""#),
             Self::Cmd | Self::PowerShell => Ok("goup env | Out-String | Invoke-Expression"),
+
+            // Nushell doesn't support eval
+            // https://www.nushell.sh/book/how_nushell_code_gets_run.html#eval-function
+            Self::Nushell => {
+                #[cfg(not(windows))]
+                return Ok("load-env (\
+                    goup env \
+                    | from toml \
+                    | update PATH {do $env.ENV_CONVERSIONS.PATH.from_string $in}\
+                )");
+
+                #[cfg(windows)]
+                return Ok("load-env (\
+                    goup env \
+                    | from toml \
+                    | rename -c {PATH: Path} \
+                    | update Path {do $env.ENV_CONVERSIONS.Path.from_string $in}\
+                )");
+            }
+
             _ => Err(Error::UnsupportedShell),
         }
     }
