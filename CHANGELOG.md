@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.5.0
+
+- Add Nushell support [[#9](https://github.com/zekroTJA/goup/pull/9)] - by @cptpiepmatz
+
 ## v1.4.1
 
 - Allow versions passed to commands be prefixed with `v` or `V` (example `v1.22.0`).
