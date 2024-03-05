@@ -7,6 +7,7 @@ Simple version manager like `rustup` or `nvm` but for Go.
 ## Features
 
 - Install, manage and switch between different versions of the Go SDK.
+- Multi-shell compatible (Bash, Zsh, Nushell, Powershell)
 - Multi-platform compatible (Linux, macOS & Windows).
 - Tries to be as simple and "out-of-the-way" as possible.
 - Should be pretty fast.
