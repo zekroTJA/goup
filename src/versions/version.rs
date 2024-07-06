@@ -1,4 +1,5 @@
 use super::parser::parse_version;
+use core::fmt;
 use std::{
     cmp::Ordering,
     fmt::{Display, Write},
@@ -19,13 +20,13 @@ impl Default for VersionState {
     }
 }
 
-impl ToString for VersionState {
-    fn to_string(&self) -> String {
+impl fmt::Display for VersionState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Alpha(v) => format!("alpha{v}"),
-            Self::Beta(v) => format!("beta{v}"),
-            Self::ReleaseCandidate(v) => format!("rc{v}"),
-            Self::Release => String::new(),
+            Self::Alpha(v) => write!(f, "alpha{v}"),
+            Self::Beta(v) => write!(f, "beta{v}"),
+            Self::ReleaseCandidate(v) => write!(f, "rc{v}"),
+            Self::Release => write!(f, ""),
         }
     }
 }
