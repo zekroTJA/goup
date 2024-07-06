@@ -46,7 +46,7 @@ impl ShellEnv for Shell {
             Self::Cmd | Self::PowerShell => Ok(format!("$env:{key} = \"{val}\"")),
             // use toml format to let Nushell parse the values
             Self::Nushell => Ok(format!("{key} = '''{val}'''")),
-            _ => Err(Error::UnsupportedShell),
+            Self::Fish => Ok(format!("set -gx {key} {val}")),
         }
     }
 
@@ -67,7 +67,7 @@ impl ShellEnv for Shell {
                 return Ok(format!("{new};{curr}"));
             }
             Self::Cmd | Self::PowerShell => Ok(format!("{new};{curr}")),
-            _ => Err(Error::UnsupportedShell),
+            Self::Fish => Ok(format!("{new} $PATH")),
         }
     }
 
@@ -89,7 +89,11 @@ impl ShellEnv for Shell {
                 .join("Roaming")
                 .join("nushell")
                 .join("config.nu")),
-            _ => Err(Error::UnsupportedShell),
+            Self::Fish => Ok(home
+                .join(".config")
+                .join("fish")
+                .join("conf.d")
+                .join("goup.fish")),
         }
     }
 
@@ -105,13 +109,13 @@ impl ShellEnv for Shell {
             Self::Cmd | Self::PowerShell | Self::Nushell => {
                 Ok(path.as_ref().to_string_lossy().to_string())
             }
-            _ => Err(Error::UnsupportedShell),
+            Self::Fish => Ok(path.as_ref().to_string_lossy().to_string()),
         }
     }
 
     fn get_apply_env_command(&self) -> Result<&'static str, Error> {
         match self {
-            Self::Bash | Self::Sh | Self::Zsh => Ok(r#"eval "$(goup env)""#),
+            Self::Bash | Self::Sh | Self::Zsh | Self::Fish => Ok(r#"eval "$(goup env)""#),
             Self::Cmd | Self::PowerShell => Ok("goup env | Out-String | Invoke-Expression"),
 
             // Nushell doesn't support eval
@@ -132,8 +136,6 @@ impl ShellEnv for Shell {
                     | update Path {do $env.ENV_CONVERSIONS.Path.from_string $in}\
                 )");
             }
-
-            _ => Err(Error::UnsupportedShell),
         }
     }
 
