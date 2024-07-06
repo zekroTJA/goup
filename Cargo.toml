@@ -16,10 +16,10 @@ console = "0.15.5"
 directories = "5.0.1"
 flate2 = "1.0.26"
 nom = "7.1.3"
-reqwest = { version = "0.11.17", default-features = false, features = ["json", "blocking", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "blocking", "rustls-tls"] }
 serde = { version = "1.0.162", features = ["derive"] }
 tar = "0.4.38"
 tempfile = "3.5.0"
 thiserror = "1.0.44"
 whattheshell = "1.0.0"
-zip = { version = "0.6.5", default-features = false, features = ["deflate"] }
+zip = { version = "2.1", default-features = false, features = ["deflate"] }
