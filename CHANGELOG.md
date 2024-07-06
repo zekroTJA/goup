@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.0
+
+- Add Fish support [[#10](https://github.com/zekroTJA/goup/issues/10)]
+
 ## v1.5.0
 
 - Add Nushell support [[#9](https://github.com/zekroTJA/goup/pull/9)] - by @cptpiepmatz
