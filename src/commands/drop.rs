@@ -1,5 +1,5 @@
 use super::Command;
-use crate::{env::*, tui::*, versions::Version};
+use crate::{env::*, progress::Spinner, tui::*, versions::Version};
 use clap::Args;
 use console::style;
 
@@ -50,8 +50,10 @@ impl Command for Drop {
             write_current_version(None)?;
         }
 
-        print_status("Removing SDK ...");
-        drop_version(target)?;
+        {
+            Spinner::new("Removing SDK ...");
+            drop_version(target)?;
+        }
 
         print_success("SDK has been removed.");
 

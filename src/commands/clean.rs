@@ -1,4 +1,4 @@
-use crate::{env::*, tui::*};
+use crate::{env::*, progress::Spinner, tui::*};
 
 use super::Command;
 use clap::Args;
@@ -14,7 +14,7 @@ pub struct Clean {
 
 impl Command for Clean {
     fn run(&self) -> anyhow::Result<()> {
-        print_status("Removing SDKs ...");
+        Spinner::new("Removing SDKs ...");
 
         if self.all {
             link_current_version(None)?;

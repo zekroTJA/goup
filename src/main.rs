@@ -1,6 +1,7 @@
 mod cmd;
 mod commands;
 mod env;
+mod progress;
 mod shell;
 mod tui;
 mod util;

@@ -1,13 +1,14 @@
 use super::Command;
 use crate::{
     env::{download::get_download_url, *},
-    shell,
+    progress, shell,
     tui::{print_status, print_success},
     versions::*,
 };
 use clap::Args;
 use flate2::bufread::GzDecoder;
-use std::io::BufReader;
+use indicatif::ProgressDrawTarget;
+use std::io::{self, BufReader};
 use tar::Archive;
 use zip::read::ZipArchive;
 
@@ -42,18 +43,18 @@ impl Command for Use {
 
             let dl_url = get_download_url(&version);
 
-            print_status("Downloading SDK ...");
-            let mut res = reqwest::blocking::get(get_download_url(&version))?;
+            let res = reqwest::blocking::get(get_download_url(&version))?;
+            let mut reader =
+                progress::Reader::new(res.content_length(), res, ProgressDrawTarget::stdout());
 
             match get_url_extension(&dl_url) {
                 "gz" | "tgz" => {
-                    print_status("Unpacking SDK ...");
-                    let mut arch = Archive::new(GzDecoder::new(BufReader::new(res)));
+                    let mut arch = Archive::new(GzDecoder::new(BufReader::new(reader)));
                     arch.unpack(&install_dir)?;
                 }
                 "zip" => {
                     let mut tmp = tempfile::tempfile()?;
-                    res.copy_to(&mut tmp)?;
+                    io::copy(&mut reader, &mut tmp)?;
                     print_status("Unpacking SDK ...");
                     let mut arch = ZipArchive::new(tmp)?;
                     arch.extract(&install_dir)?;

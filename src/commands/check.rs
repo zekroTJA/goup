@@ -3,6 +3,7 @@ use std::env;
 use super::Command;
 use crate::{
     env::*,
+    progress::Spinner,
     shell, success,
     versions::{self, get_upstream_versions, Version},
     warning,
@@ -24,10 +25,14 @@ impl Command for Check {
         check_env_applied(&shell::get_shell())?;
 
         let Some(current) = get_current_version()? else {
-            warning!("No version has been selected.\n\
-                      Use `goup use` to select an SDK version.");
+            warning!(
+                "No version has been selected.\n\
+                      Use `goup use` to select an SDK version."
+            );
             return Ok(());
         };
+
+        Spinner::new("Checking ...");
 
         let upstream_versions = get_upstream_versions()?;
 
