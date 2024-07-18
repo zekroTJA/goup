@@ -8,9 +8,6 @@ Sleep 1s
 Type "source ~/.profile"
 Enter
 Sleep 1.5s
-Type "echo $GOROOT"
-Enter
-Sleep 1s
 Type "goup use"
 Enter
 Sleep 6s
@@ -22,7 +19,7 @@ Enter
 Sleep 1s
 Type "goup use 1.20"
 Enter
-Sleep 7s
+Sleep 8s
 Type "goup ls"
 Enter
 Sleep 1s
