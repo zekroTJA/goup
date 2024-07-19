@@ -8,7 +8,7 @@ for cmd in src/commands/*.rs; do
     cmd=${cmd%*.rs}
     cmd=${cmd/_/-}
     
-    echo "Running helpf for command $cmd ..."
+    echo "Running help for command $cmd ..."
     output=$(cargo run --quiet -- "$cmd" --help)
 
     headers+="- [$cmd](#$cmd): \`$(echo "$output" | head -n1)\`\n"

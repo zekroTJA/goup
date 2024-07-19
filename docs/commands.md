@@ -14,7 +14,7 @@ Commands:
   check    Check for updates
   clean    Remove all installed SDKs [aliases: purge, prune]
   current  Display the currently selected version of Go [aliases: c]
-  drop     Drop an installed SDK [aliases: delete, remove]
+  drop     Drop an installed SDK [aliases: delete, remove, rm]
   env      Print env variables required to use goup
   ls       Display currently installed SDKs [aliases: list]
   lsr      List all upstream versions [aliases: ls-remote, list-remote]
@@ -38,8 +38,8 @@ Options:
 - [current](#current): `Display the currently selected version of Go`
 - [drop](#drop): `Drop an installed SDK`
 - [env](#env): `This command prints all necessary environment variables and values required to use goup. `
-- [ls](#ls): `Display currently installed SDKs`
 - [lsr](#lsr): `List all upstream versions`
+- [ls](#ls): `Display currently installed SDKs`
 - [use](#use): `Install a version of Go`
 
 ## Details
@@ -109,7 +109,7 @@ Options:
 ```
 This command prints all necessary environment variables and values required to use goup. 
 
-Using `goup env -p` appends the variables to your profile file (/home/zekro/.profile). After that, you can apply the changes to your current terminal session using `eval "$(goup env)"`.
+Using `goup env -p` appends the variables to your profile file (/home/r.hoffmann@intern.b12-group.de/.profile). After that, you can apply the changes to your current terminal session using `eval "$(goup env)"`.
 
 Usage: goup env [OPTIONS]
 
@@ -119,19 +119,6 @@ Options:
 
   -h, --help
           Print help (see a summary with '-h')
-```
-
-### ls
-
-> $ goup help ls
-
-```
-Display currently installed SDKs
-
-Usage: goup ls
-
-Options:
-  -h, --help  Print help
 ```
 
 ### lsr
@@ -146,6 +133,19 @@ Usage: goup lsr [OPTIONS]
 Options:
   -f, --filter <FILTER>  Filter versions by release type [default: all] [possible values: stable, unstable, all]
   -h, --help             Print help
+```
+
+### ls
+
+> $ goup help ls
+
+```
+Display currently installed SDKs
+
+Usage: goup ls
+
+Options:
+  -h, --help  Print help
 ```
 
 ### use
