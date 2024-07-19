@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.7.0
+
+- Add progress bar for downloading SDKs and spinners for longer running tasks
+- Add `rm` alias to `drop` command
+
 ## v1.6.0
 
 - Add Fish support [[#10](https://github.com/zekroTJA/goup/issues/10)]
