@@ -1,7 +1,7 @@
 [package]
 name = "goup"
 description = "A simple version manager for Go written in Rust! 🚀"
-version = "1.6.0"
+version = "1.7.0"
 edition = "2021"
 authors = ["Ringo Hoffmann <contact@zekro.de>"]
 license = "MIT"
