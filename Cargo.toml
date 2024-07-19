@@ -1,6 +1,6 @@
 [package]
 name = "goup"
-description = "Like rustup or nvm but for Go: A simple version manager for Go written in Rust! 🚀"
+description = "A simple version manager for Go written in Rust! 🚀"
 version = "1.6.0"
 edition = "2021"
 authors = ["Ringo Hoffmann <contact@zekro.de>"]
