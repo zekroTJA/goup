@@ -32,7 +32,16 @@ struct App {
     command: Commands,
 }
 
-register_commands!(Check, Clean, Current, Drop, Env, Ls, Lsr, Use);
+register_commands! {
+    Check
+    Clean
+    Current
+    Drop
+    Env
+    Ls
+    Lsr
+    Use
+}
 
 fn main() {
     let app = App::parse();

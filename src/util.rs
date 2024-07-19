@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! register_commands {
-    ( $( $command:tt ),+ $(,)* ) => {
+    ( $( $command:tt )+ ) => {
         #[derive(Subcommand)]
         enum Commands {
             $(
@@ -24,7 +24,7 @@ macro_rules! register_commands {
 
 #[macro_export]
 macro_rules! prelude {
-    ( $( $package:tt ),+ $(,)* ) => {
+    ( $( $package:tt )* ) => {
         $(
             mod $package;
             pub use $package::*;
