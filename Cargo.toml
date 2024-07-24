@@ -25,3 +25,10 @@ tempfile = "3.5.0"
 thiserror = "1.0.44"
 whattheshell = "1.0.0"
 zip = { version = "2.1", default-features = false, features = ["deflate"] }
+
+[profile.release]
+strip = true
+opt-level = "s"
+codegen-units = 1
+lto = true
+panic = "unwind"
