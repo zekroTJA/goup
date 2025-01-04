@@ -15,7 +15,22 @@ Simple version manager like `rustup` or `nvm` but for Go.
 
 ## Installation
 
+### Install Script
+
+You can use the provided [install script](scripts/install.sh).
+
+> [!WARN]  
+> Please check the install script from the given source URL in the command before executing the command below!
+
+```bash
+curl -sSfL https://raw.githubusercontent.com/zekroTJA/goup/refs/heads/main/scripts/install.sh | sudo bash -
+```
+
+### Binaries
+
 Simply download the latest binaries from the [Releases Page](https://github.com/zekrotja/goup/releases).
+
+### cargo
 
 Alternatively, you can also install goup using cargo.
 
