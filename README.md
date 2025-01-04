@@ -19,7 +19,7 @@ Simple version manager like `rustup` or `nvm` but for Go.
 
 You can use the provided [install script](scripts/install.sh).
 
-> [!WARN]  
+> [!WARNING]  
 > Please check the install script from the given source URL in the command before executing the command below!
 
 ```bash
