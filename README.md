@@ -1,6 +1,6 @@
 # 🚀 goup
 
-Simple version manager like `rustup` or `nvm` but for Go.
+Simple, platform and shell agnostic installer and version manager for Go.
 
 ![](assets/demo.gif)
 
