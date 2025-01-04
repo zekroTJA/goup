@@ -82,6 +82,18 @@ main() {
         INSTALL_PATH="$DEFAULT_INSTALL_PATH"
     fi
 
+    if [ -d "$INSTALL_PATH" ]; then
+        confirm "You have given a path as install path ($INSTALL_PATH); do you want to install goup to $INSTALL_PATH/goup?"
+        INSTALL_PATH="$INSTALL_PATH/goup"
+    fi
+
+    local install_dir
+    install_dir=$(dirname "$INSTALL_PATH")
+
+    if ! [ -w "$install_dir" ]; then
+        fatal "You do not have write permissions on the installation directory $install_dir. You might want to execute the script either with sudo or with a user who has write permission on the given directory."
+    fi
+
     if [ -f "$INSTALL_PATH" ]; then
         confirm "$INSTALL_PATH already exists; do you want to overwrite it?"
     fi
